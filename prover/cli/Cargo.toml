@@ -1,0 +1,15 @@
+[package]
+name = "leash-risk-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Host-side execute-mode runner for the zkLeash risk guest"
+
+[[bin]]
+name = "leash-risk"
+path = "src/main.rs"
+
+[dependencies]
+leash-risk = { path = "../leash-risk" }
+serde_json.workspace = true
+hex.workspace = true

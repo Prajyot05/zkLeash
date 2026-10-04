@@ -1,0 +1,13 @@
+[package]
+name = "zkleash-guest"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+leash-risk = { path = "../leash-risk", default-features = false, features = ["serde"] }
+sp1-zkvm = "5"
+
+# This crate is excluded from the workspace. Build it with the SP1 toolchain:
+#   cd prover && cargo prove build --elf-name zkleash-guest
+# Daily development uses `leash-risk check`, which runs the same `evaluate`.

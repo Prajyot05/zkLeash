@@ -1,0 +1,15 @@
+[workspace]
+resolver = "2"
+members = ["leash-risk", "cli"]
+exclude = ["program"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+sha3 = { version = "0.10", default-features = false }
+serde = { version = "1", default-features = false, features = ["derive", "alloc"] }
+serde_json = "1"
+hex = "0.4"
