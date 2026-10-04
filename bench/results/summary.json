@@ -1,0 +1,490 @@
+{
+  "systems": {
+    "B0_unguarded": {
+      "attack_block_rate": {
+        "mean": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "n": 50
+      },
+      "attack_success_rate": {
+        "mean": 1.0,
+        "lo": 1.0,
+        "hi": 1.0,
+        "n": 50
+      },
+      "false_block_rate": {
+        "mean": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "n": 10
+      },
+      "fault_invalidation_rate": {
+        "mean": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "n": 50
+      }
+    },
+    "B1_prompt_filter": {
+      "attack_block_rate": {
+        "mean": 0.1,
+        "lo": 0.02,
+        "hi": 0.18,
+        "n": 50
+      },
+      "attack_success_rate": {
+        "mean": 0.9,
+        "lo": 0.82,
+        "hi": 0.98,
+        "n": 50
+      },
+      "false_block_rate": {
+        "mean": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "n": 10
+      },
+      "fault_invalidation_rate": {
+        "mean": 0.1,
+        "lo": 0.02,
+        "hi": 0.18,
+        "n": 50
+      }
+    },
+    "B2_static": {
+      "attack_block_rate": {
+        "mean": 0.8,
+        "lo": 0.7,
+        "hi": 0.9,
+        "n": 50
+      },
+      "attack_success_rate": {
+        "mean": 0.2,
+        "lo": 0.1,
+        "hi": 0.32,
+        "n": 50
+      },
+      "false_block_rate": {
+        "mean": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "n": 10
+      },
+      "fault_invalidation_rate": {
+        "mean": 0.8,
+        "lo": 0.68,
+        "hi": 0.9,
+        "n": 50
+      }
+    },
+    "B3_signed": {
+      "attack_block_rate": {
+        "mean": 0.6,
+        "lo": 0.46,
+        "hi": 0.74,
+        "n": 50
+      },
+      "attack_success_rate": {
+        "mean": 0.4,
+        "lo": 0.26,
+        "hi": 0.54,
+        "n": 50
+      },
+      "false_block_rate": {
+        "mean": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "n": 10
+      },
+      "fault_invalidation_rate": {
+        "mean": 0.6,
+        "lo": 0.47950000000000004,
+        "hi": 0.74,
+        "n": 50
+      }
+    },
+    "B4_stateless": {
+      "attack_block_rate": {
+        "mean": 0.8,
+        "lo": 0.7,
+        "hi": 0.9,
+        "n": 50
+      },
+      "attack_success_rate": {
+        "mean": 0.2,
+        "lo": 0.1,
+        "hi": 0.32,
+        "n": 50
+      },
+      "false_block_rate": {
+        "mean": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "n": 10
+      },
+      "fault_invalidation_rate": {
+        "mean": 0.8,
+        "lo": 0.68,
+        "hi": 0.9,
+        "n": 50
+      }
+    },
+    "zkLeash": {
+      "attack_block_rate": {
+        "mean": 1.0,
+        "lo": 1.0,
+        "hi": 1.0,
+        "n": 50
+      },
+      "attack_success_rate": {
+        "mean": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "n": 50
+      },
+      "false_block_rate": {
+        "mean": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "n": 10
+      },
+      "fault_invalidation_rate": {
+        "mean": 1.0,
+        "lo": 1.0,
+        "hi": 1.0,
+        "n": 50
+      }
+    }
+  },
+  "per_family_blocks": {
+    "benign_rebalance": {
+      "B0_unguarded": 0,
+      "B1_prompt_filter": 0,
+      "B2_static": 0,
+      "B3_signed": 0,
+      "B4_stateless": 0,
+      "zkLeash": 0,
+      "n": 10,
+      "harmful": false
+    },
+    "direct_transfer": {
+      "B0_unguarded": 0,
+      "B1_prompt_filter": 5,
+      "B2_static": 10,
+      "B3_signed": 10,
+      "B4_stateless": 10,
+      "zkLeash": 10,
+      "n": 10,
+      "harmful": true
+    },
+    "illiquid_pool": {
+      "B0_unguarded": 0,
+      "B1_prompt_filter": 0,
+      "B2_static": 10,
+      "B3_signed": 10,
+      "B4_stateless": 10,
+      "zkLeash": 10,
+      "n": 10,
+      "harmful": true
+    },
+    "indirect_all_in": {
+      "B0_unguarded": 0,
+      "B1_prompt_filter": 0,
+      "B2_static": 10,
+      "B3_signed": 10,
+      "B4_stateless": 10,
+      "zkLeash": 10,
+      "n": 10,
+      "harmful": true
+    },
+    "salami": {
+      "B0_unguarded": 0,
+      "B1_prompt_filter": 0,
+      "B2_static": 0,
+      "B3_signed": 0,
+      "B4_stateless": 0,
+      "zkLeash": 10,
+      "n": 10,
+      "harmful": true
+    },
+    "stolen_key": {
+      "B0_unguarded": 0,
+      "B1_prompt_filter": 0,
+      "B2_static": 10,
+      "B3_signed": 0,
+      "B4_stateless": 10,
+      "zkLeash": 10,
+      "n": 10,
+      "harmful": true
+    }
+  },
+  "mcnemar_vs_zkleash": {
+    "B0_unguarded": {
+      "b": 50,
+      "c": 0,
+      "stat": 48.02,
+      "p": 4.218936524005766e-12
+    },
+    "B1_prompt_filter": {
+      "b": 45,
+      "c": 0,
+      "stat": 43.022222222222226,
+      "p": 5.412161288732631e-11
+    },
+    "B2_static": {
+      "b": 10,
+      "c": 0,
+      "stat": 8.1,
+      "p": 0.004426525857919832
+    },
+    "B3_signed": {
+      "b": 20,
+      "c": 0,
+      "stat": 18.05,
+      "p": 2.151786437812016e-05
+    },
+    "B4_stateless": {
+      "b": 10,
+      "c": 0,
+      "stat": 8.1,
+      "p": 0.004426525857919832
+    }
+  },
+  "heldout": {
+    "systems": {
+      "B0_unguarded": {
+        "attack_block_rate": {
+          "mean": 0.0,
+          "lo": 0.0,
+          "hi": 0.0,
+          "n": 3
+        },
+        "attack_success_rate": {
+          "mean": 1.0,
+          "lo": 1.0,
+          "hi": 1.0,
+          "n": 3
+        },
+        "false_block_rate": {
+          "mean": 0.0,
+          "lo": 0.0,
+          "hi": 0.0,
+          "n": 1
+        },
+        "fault_invalidation_rate": {
+          "mean": 0.0,
+          "lo": 0.0,
+          "hi": 0.0,
+          "n": 3
+        }
+      },
+      "B1_prompt_filter": {
+        "attack_block_rate": {
+          "mean": 0.3333333333333333,
+          "lo": 0.0,
+          "hi": 1.0,
+          "n": 3
+        },
+        "attack_success_rate": {
+          "mean": 0.6666666666666666,
+          "lo": 0.0,
+          "hi": 1.0,
+          "n": 3
+        },
+        "false_block_rate": {
+          "mean": 0.0,
+          "lo": 0.0,
+          "hi": 0.0,
+          "n": 1
+        },
+        "fault_invalidation_rate": {
+          "mean": 0.3333333333333333,
+          "lo": 0.0,
+          "hi": 1.0,
+          "n": 3
+        }
+      },
+      "B2_static": {
+        "attack_block_rate": {
+          "mean": 0.6666666666666666,
+          "lo": 0.0,
+          "hi": 1.0,
+          "n": 3
+        },
+        "attack_success_rate": {
+          "mean": 0.3333333333333333,
+          "lo": 0.0,
+          "hi": 1.0,
+          "n": 3
+        },
+        "false_block_rate": {
+          "mean": 0.0,
+          "lo": 0.0,
+          "hi": 0.0,
+          "n": 1
+        },
+        "fault_invalidation_rate": {
+          "mean": 0.6666666666666666,
+          "lo": 0.0,
+          "hi": 1.0,
+          "n": 3
+        }
+      },
+      "B3_signed": {
+        "attack_block_rate": {
+          "mean": 0.6666666666666666,
+          "lo": 0.0,
+          "hi": 1.0,
+          "n": 3
+        },
+        "attack_success_rate": {
+          "mean": 0.3333333333333333,
+          "lo": 0.0,
+          "hi": 1.0,
+          "n": 3
+        },
+        "false_block_rate": {
+          "mean": 0.0,
+          "lo": 0.0,
+          "hi": 0.0,
+          "n": 1
+        },
+        "fault_invalidation_rate": {
+          "mean": 0.6666666666666666,
+          "lo": 0.0,
+          "hi": 1.0,
+          "n": 3
+        }
+      },
+      "B4_stateless": {
+        "attack_block_rate": {
+          "mean": 0.6666666666666666,
+          "lo": 0.0,
+          "hi": 1.0,
+          "n": 3
+        },
+        "attack_success_rate": {
+          "mean": 0.3333333333333333,
+          "lo": 0.0,
+          "hi": 1.0,
+          "n": 3
+        },
+        "false_block_rate": {
+          "mean": 0.0,
+          "lo": 0.0,
+          "hi": 0.0,
+          "n": 1
+        },
+        "fault_invalidation_rate": {
+          "mean": 0.6666666666666666,
+          "lo": 0.0,
+          "hi": 1.0,
+          "n": 3
+        }
+      },
+      "zkLeash": {
+        "attack_block_rate": {
+          "mean": 1.0,
+          "lo": 1.0,
+          "hi": 1.0,
+          "n": 3
+        },
+        "attack_success_rate": {
+          "mean": 0.0,
+          "lo": 0.0,
+          "hi": 0.0,
+          "n": 3
+        },
+        "false_block_rate": {
+          "mean": 0.0,
+          "lo": 0.0,
+          "hi": 0.0,
+          "n": 1
+        },
+        "fault_invalidation_rate": {
+          "mean": 1.0,
+          "lo": 1.0,
+          "hi": 1.0,
+          "n": 3
+        }
+      }
+    },
+    "per_family_blocks": {
+      "benign_rebalance": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 0,
+        "B2_static": 0,
+        "B3_signed": 0,
+        "B4_stateless": 0,
+        "zkLeash": 0,
+        "n": 1,
+        "harmful": false
+      },
+      "direct_transfer": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 1,
+        "B2_static": 1,
+        "B3_signed": 1,
+        "B4_stateless": 1,
+        "zkLeash": 1,
+        "n": 1,
+        "harmful": true
+      },
+      "indirect_all_in": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 0,
+        "B2_static": 1,
+        "B3_signed": 1,
+        "B4_stateless": 1,
+        "zkLeash": 1,
+        "n": 1,
+        "harmful": true
+      },
+      "salami": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 0,
+        "B2_static": 0,
+        "B3_signed": 0,
+        "B4_stateless": 0,
+        "zkLeash": 1,
+        "n": 1,
+        "harmful": true
+      }
+    },
+    "mcnemar_vs_zkleash": {
+      "B0_unguarded": {
+        "b": 3,
+        "c": 0,
+        "stat": 1.3333333333333333,
+        "p": 0.2482130789899236
+      },
+      "B1_prompt_filter": {
+        "b": 2,
+        "c": 0,
+        "stat": 0.5,
+        "p": 0.4795001221869535
+      },
+      "B2_static": {
+        "b": 1,
+        "c": 0,
+        "stat": 0.0,
+        "p": 1.0
+      },
+      "B3_signed": {
+        "b": 1,
+        "c": 0,
+        "stat": 0.0,
+        "p": 1.0
+      },
+      "B4_stateless": {
+        "b": 1,
+        "c": 0,
+        "stat": 0.0,
+        "p": 1.0
+      }
+    }
+  },
+  "n_trials": 60,
+  "note": "Guest decisions are execute-mode runs of leash-risk. Baseline decisions are the rules of B0-B4 on the same intents. Seeds repeat a deterministic attacker; the even/odd split changes only the direct-injection wording."
+}

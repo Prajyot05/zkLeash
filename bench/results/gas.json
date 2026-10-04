@@ -1,0 +1,12 @@
+{
+  "source": "forge test --match-test test_gas_crossover_samples",
+  "note": "Gas is for OnChainEwma.sigma on one asset. It includes the external call overhead. Groth16 verification is not in this measurement; Succinct documents SP1 Groth16 verification at roughly 280k gas.",
+  "ewma_gas": {
+    "8": 17935,
+    "32": 50591,
+    "64": 90822,
+    "128": 171360
+  },
+  "slope_gas_per_point_after_64": 1258,
+  "single_asset_points_to_exceed_280k": 214
+}
