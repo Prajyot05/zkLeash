@@ -1,0 +1,36 @@
+# Rust
+**/target/
+**/*.rs.bk
+
+# Foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.venv/
+.venv/
+**/*.egg-info/
+**/.mypy_cache/
+
+# Node
+**/node_modules/
+dashboard/.next/
+dashboard/out/
+
+# Env and keys
+.env
+.env.*
+!.env.example
+**/*private*key*
+
+# OS / editor
+.DS_Store
+*.log
+
+# Proof artifacts
+prover/proofs/
+*.bin
