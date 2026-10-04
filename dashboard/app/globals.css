@@ -1,0 +1,61 @@
+:root {
+  color-scheme: dark;
+  --bg: #10140f;
+  --panel: #1a2218;
+  --line: #2c3828;
+  --text: #e7f0e2;
+  --muted: #9aab96;
+  --allow: #8fdf7a;
+  --deny: #f0a08a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+h1 { font-weight: 600; letter-spacing: -0.03em; margin-bottom: 8px; }
+h2 { font-size: 1.1rem; margin: 28px 0 8px; }
+
+p, li { line-height: 1.45; }
+.muted { color: var(--muted); }
+
+form, .card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+
+input, select, button {
+  font: inherit;
+  color: var(--text);
+  background: #121810;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+button { cursor: pointer; background: #243222; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.row > * { flex: 1; }
+
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; font-size: 0.8rem; }
+
+.allow { color: var(--allow); }
+.deny { color: var(--deny); }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
