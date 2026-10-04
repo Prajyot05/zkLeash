@@ -1,0 +1,106 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\title{zkLeash: Trustless, Stateful Risk Enforcement\\for LLM Trading Agents}
+\author{Final-year project draft\\[0.5em]\small Not yet on arXiv. See \texttt{paper/SUBMISSION.md}.}
+\date{October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+An LLM that can propose a swap is not a policy. Recent guards for DeFi agents either trust an off-chain signer (PACE) or trust a guard that holds the key (Proof-Gated Signing), and both judge one transaction at a time. We present zkLeash. The agent proposes a typed swap. An SP1 guest computes EWMA volatility over a hash-chained Pyth price history and a volatility-scaled exposure of the post-trade portfolio. An ERC-7579 executor checks the proof, the price-log heads, the live Pyth price, and a rolling loss ledger, then enforces an oracle minimum output. On a 60-trial harness whose guest decisions are execute-mode runs of that program, zkLeash blocked all 50 harmful trials and none of the 10 benign rebalances. A stateless proof check and a static notional cap each missed the 10-trial multi-trade drain. A signed-attestation baseline also missed that drain and every trial in which its key was treated as stolen. We measure the same EWMA in Solidity at 17{,}935 gas for 8 prices and 171{,}360 gas for 128. These are laptop-scale results. We do not claim a Groth16 latency, and the attacker is scripted.
+\end{abstract}
+
+\section{Introduction}
+
+Wiring a language model to a wallet imports prompt injection into a setting where a bad transaction is final. Two 2026 systems draw a useful line and then stop short of it. PACE signs a policy decision with a trusted verifier key and checks one transaction. Its authors report that every baseline, including theirs, admits a five-leg drain whose legs each sit under the cap, and they list multi-step attacks and an ERC-4337 module as future work. Proof-Gated Signing adds post-conditions that survive state drift, but the guard holds the signing key and the oracle band is a trusted constant. In-policy drains are bounded only by a session budget.
+
+zkLeash is aimed at those two holes. There is no verifier key: a proof replaces the signature, so a host that runs the prover still cannot mint an allow for a portfolio the guest would deny. The volatility input is a hash chain of Pyth-verified prices, so a fake calm history does not match the log. A ledger remembers realized loss, so the drain has a hard stop. Checks that are cheap (concentration, notional, drawdown, minimum output) stay in the contract. Only the history-dependent statistic is proved. That split is what makes a zkVM worth its verification gas.
+
+\section{Background}
+
+ERC-4337 validation cannot read arbitrary contracts (ERC-7562). Pyth, the price log, and the verifier are not the account's associated storage, so the proof is checked in an executor module during execution, not in \texttt{validateUserOp}. The validator's only job is to check the session-key signature and to refuse every call that is not \texttt{executeGuarded}. The owner keeps a raw path for recovery. The session key cannot change modules.
+
+SP1 proves RISC-V execution. We write the risk function in Rust and run it in execute mode, which returns the public values and a step count without a proof. Groth16 wrapping is how that proof becomes verifiable on an EVM, at a published cost of roughly 280k gas. We do not generate those proofs in this draft.
+
+\section{Threat model and claim}
+
+The adversary writes anything the model reads, operates the prover, replays proofs, and can move pool state after the proof is built. The adversary does not forge Pyth updates or break SP1. Allowlisted routers are assumed to implement their ABI. The owner key is trusted.
+
+Informally: for any sequence of session-key swaps in a window, realized oracle-valued loss is at most \texttt{maxWindowLoss}, and every executed swap satisfies the volatility, concentration, notional, and slippage limits. This uses SP1 soundness, Pyth, and the deployed bytecode. A Foundry invariant (128{,}000 handler calls) never observed the ledger crossing its cap, because a crossing update reverts.
+
+\section{Design}
+
+The guest checks the price hash chain, computes per-asset EWMA volatility with $\lambda = 0.94$, and sets
+\[
+\mathrm{volExposure} = \sum_i e_i \sigma_i, \qquad \mathrm{VaR}_{99} = 2.33 \times \mathrm{volExposure}.
+\]
+The policy threshold is on \texttt{volExposure}. The factor $2.33$ is recorded so the limit can be read as a parametric VaR. Post-trade notionals use the fair oracle output, so buying a volatile asset is not hidden behind a pessimistic \texttt{minOut}. The contract recomputes the weighted sum from the proved sigmas and reverts if it does not match. A guest that merely sets the decision bit to allow cannot waive the limit.
+
+The live price is a Pyth pull in the same transaction. The history is an append-only log: anyone may call \texttt{record}, because Pyth checks the update. The guest's start and end heads must equal the on-chain heads. A forged history fails that comparison even under a mock proof, which is the case the tests care about. A poster that goes down freezes trading. It cannot authorize a trade.
+
+After the swap, the executor requires tokens received to meet \texttt{minOut} and adds the oracle equity drop to the window. The window resets on its timer. The quote asset is exempt from the concentration cap so a move to USDC is not blocked for being undiversified.
+
+\section{Implementation}
+
+The guest crate is \texttt{leash-risk}. The CLI \texttt{leash-risk scenario} is the execute-mode host. The SP1 entrypoint is \texttt{prover/program} and is not built in CI. Contracts are Solidity 0.8.28 with via-IR. Tests use an honest verifier: the proof bytes are a hash of the public values, so tampering them reverts. A mock verifier that accepts every proof is included and is not used for security tests. The account is a minimal 4337/7579 stand-in, not Kernel or Safe. The modules match the validator and executor interfaces those accounts call.
+
+\section{Evaluation}
+
+\subsection{Contract tests}
+
+Sixteen Foundry tests and one invariant. A calm 0.1 WETH to USDC swap lands. An all-in buy of WETH on a jumpy history is denied by the guest (concentration). An extra log point that the proof does not cover reverts with \texttt{HeadMismatch}. Replaying a proof reverts with \texttt{ActionMismatch}. Flipping a byte of the public values after the proof is bound reverts in the verifier. A session key can submit the guarded call through a mock EntryPoint and cannot change modules or call \texttt{transfer} directly. A salami loop that pays only \texttt{minOut} stops at the loss cap. The same swap through a stateless executor does not touch the ledger. A signed-attestation baseline with a stolen test key transfers the tokens. A static guard rejects an unknown target.
+
+\subsection{Harness}
+
+LeashBench runs 10 seeds over 6 families (50 harmful trials, 10 benign). Guest allow/deny bits are subprocess calls to the CLI. Baselines are decision rules on the same intent: no guard (B0), a keyword filter (B1), an allowlist plus a \$5{,}000 notional cap (B2), a signer that follows the guest except when the key is stolen and that never sees the ledger (B3), and a stateless proof check (B4). Seeds repeat a deterministic attacker; even seeds add the word ``ignore'' to the direct-transfer text, which is why B1 blocks 5 of those 10. This is not a sample of live models. False-block rate on the benign family is 0 for every system.
+
+\begin{table}[h]
+\centering
+\caption{Harmful trials blocked, out of 10 per family. Benign rebalances were blocked 0/10 by every system.}
+\begin{tabular}{lrrrrrr}
+\toprule
+Family & B0 & B1 & B2 & B3 & B4 & zkLeash \\
+\midrule
+Direct transfer & 0 & 5 & 10 & 10 & 10 & 10 \\
+Indirect all-in & 0 & 0 & 10 & 10 & 10 & 10 \\
+Illiquid pool & 0 & 0 & 10 & 10 & 10 & 10 \\
+Salami drain & 0 & 0 & 0 & 0 & 0 & 10 \\
+Stolen verifier key & 0 & 0 & 10 & 0 & 10 & 10 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Pooled attack success (bootstrap 95\% interval, 1000 resamples): B0 is 1.00, B1 is 0.90 [0.82, 0.98], B2 is 0.20 [0.10, 0.32], B3 is 0.40 [0.26, 0.54], B4 is 0.20 [0.10, 0.32], zkLeash is 0.00. McNemar's test with a continuity correction, zkLeash versus each baseline, has zero pairs where the baseline blocked and zkLeash did not. Versus B4 and versus B2 the discordant count is the 10 salami trials ($p \approx 0.004$). Versus B0, $p \approx 4 \times 10^{-12}$. These $p$-values describe this table. They are not a field estimate.
+
+The salami result is the one that separates zkLeash from B4. Each calm leg is allowed by the guest. B4 has no ledger, so it allows the sequence. zkLeash passes the running loss back into the next proof and stops.
+
+A four-case file in \texttt{bench/heldout.json} replays the same families. It was not written by an independent attacker. The paper should not call it a held-out set until someone who has not read the executor replaces it.
+
+\subsection{Gas}
+
+\texttt{OnChainEwma.sigma} costs 17{,}935, 50{,}591, 90{,}822, and 171{,}360 gas at 8, 32, 64, and 128 prices. From 64 to 128 the slope is about 1{,}260 gas per price. A published SP1 Groth16 verification is about 280k gas, which this repo did not re-measure. On that published number, one asset crosses it near 210 prices. Two assets at a 128-point window are already $2 \times 171\mathrm{k} \approx 343\mathrm{k}$, above verification, if the Solidity loops are sequential. That is the justification for proving the statistic rather than storing the window on-chain. It is an extrapolation from one measured function plus a cited verification cost.
+
+\subsection{Utility}
+
+The benign family is a 0.1 WETH rebalance on a calm path. Every system allows it, so this draft has no evidence about Sharpe ratio or drawdown of a real strategy. Those numbers need a backtest we have not run. The agent that proposes the rebalance is a scripted tool-caller. Ollama and Gemini clients are implemented and were not part of the 60 trials.
+
+\section{Discussion}
+
+The design refuses to prove checks the EVM can do itself. That keeps the guest small, which is also why a laptop can run execute mode. The price log is the part most likely to be criticized: it is an on-chain cache of oracle updates, and the proof covers the entire log rather than a sliding window index. Both are deliberate. A sliding index is a public-values change. In-guest Pyth signature checks would remove the poster and belong in the same follow-up, with a cycle-count comparison.
+
+We do not claim the harness predicts attack success on mainnet. The Foundry tests use a mock router and a mock oracle. They do show that the binding the paper talks about is the binding the contract implements: heads, action hash, proof bytes, ledger, session key.
+
+\section{Related work}
+
+See \texttt{docs/RELATED\_WORK.md}. PACE and Proof-Gated Signing are the systems a reviewer will cite. NiyamAI proves a classifier and does not authenticate financial inputs. ERC-8354 is a stateless verdict. CrAIBench is the attack benchmark we did not rerun; citing it as our evaluation would be false.
+
+\section{Conclusion}
+
+zkLeash treats the model and the prover host as untrusted, checks a history-dependent risk statistic with a zkVM because that statistic is expensive on-chain, and remembers loss across transactions because a per-transaction proof does not. On the harness we ran, that is the difference between blocking a salami drain and not blocking it. The next measurements that would change the paper are a real Groth16 confirmation subset, a live-model panel, and an independently written attack set.
+
+\end{document}
