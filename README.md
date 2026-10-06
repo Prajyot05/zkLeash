@@ -71,7 +71,8 @@ Point `PYTH_ADDRESS` and the price ids in `.env.example` at the real feeds befor
 
 ## Reading order
 
-1. `docs/SYNOPSIS.md`
-2. `docs/THREAT_MODEL.md` and `docs/RISK_MODEL.md`
-3. `paper/main.tex`
-4. `docs/DEMO.md` before a viva
+1. `docs/GUIDE.md` for the full explanation, from the plain-language version through the cross-questions
+2. `docs/SYNOPSIS.md`
+3. `docs/THREAT_MODEL.md` and `docs/RISK_MODEL.md`
+4. `paper/main.tex`
+5. `docs/DEMO.md` before a viva
