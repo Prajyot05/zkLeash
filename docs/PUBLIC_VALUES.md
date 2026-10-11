@@ -52,6 +52,8 @@ keccak256(abi.encodePacked(prevHead, int64 price, uint64 conf, int32 expo, uint6
 
 `headStart[i]` is the head after the first point in the window. `headEnd[i]` is the head after the last. The executor requires those to equal `heads[priceId][0]` and `heads[priceId][length-1]`, so the proof has to cover the whole log. Appending a point invalidates outstanding proofs. That is fail-closed.
 
+Publish times strictly increase along each chain. `PriceHistoryLog.record` reverts with `StalePrice` if `publishTime` is not later than the last recorded one for that feed, and the guest denies a window whose publish times do not increase (`non_increasing_time`). Without this, anyone could append the same Pyth update repeatedly; each repeat adds a zero return and pulls the EWMA sigma toward zero. The ABI is unchanged.
+
 ## Intent schema
 
 The model emits one of `swap`, `transfer`, or `hold` (see `agent/zkleash_agent/schema.py`). A transfer has no encoding in this ABI, so it cannot be proved and the executor will not run it.

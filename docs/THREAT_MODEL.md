@@ -40,4 +40,4 @@ The model, its prompt, its tools, the machine that runs the prover, and every by
 - A3. The account only lets the executor move funds, and the executor is the deployed bytecode.
 - A4. If the price log is not posted, trades fail closed. Liveness depends on the poster. Safety does not.
 
-Under those assumptions, a sequence of session-key trades in a window cannot push realized loss above `maxWindowLoss`, and no executed trade exceeds the volatility, concentration, notional, or slippage limits. The Foundry invariant test checks the ledger half of this. The guest tests check the volatility half. This is an informal argument plus those tests, not a machine-checked proof.
+Under those assumptions, a sequence of session-key trades in a window cannot push execution loss (value given up against the oracle price) above `maxWindowLoss`, and no executed trade exceeds the volatility, concentration, notional, or slippage limits. The Foundry invariant test checks the ledger half of this. The guest tests check the volatility half. This is an informal argument plus those tests, not a machine-checked proof.

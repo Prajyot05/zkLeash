@@ -14,19 +14,19 @@ Build and evaluate an account that executes an agent's swap only when:
 
 1. an SP1 proof shows a fixed EWMA risk function accepted the post-trade portfolio,
 2. the prices in that proof match a Pyth-verified on-chain history,
-3. a ledger caps realized loss across the sequence.
+3. a ledger caps execution loss (value given up against the oracle price) across the sequence.
 
 No off-chain signing key can wave a trade through.
 
 ## Method
 
-- Guest: fixed-point EWMA and a volatility-scaled exposure limit, in Rust, run in execute mode on a laptop. Groth16 wrapping is reserved for the Succinct Prover Network.
+- Guest: fixed-point EWMA and a volatility-scaled exposure limit, in Rust, run natively and in the SP1 executor on a laptop. Groth16 wrapping is reserved for the Succinct Prover Network.
 - Contracts: an ERC-7579 validator and executor on a minimal ERC-4337 account, a Pyth pull inside the trade, an append-only price log, and a loss ledger. Cheap checks stay in Solidity.
-- Evaluation: Foundry tests for the contract rules, including a forged history, a tampered proof, a salami sequence, and a stolen-key baseline. A 60-trial harness (10 seeds, 6 families) compares five baselines. Gas for the same EWMA in Solidity is measured at four window lengths.
+- Evaluation: Foundry tests for the contract rules, including a forged history, a tampered proof, a salami sequence, and a stolen-key baseline. A randomized 225-trial harness (nine families, 25 seeds each) compares five baselines and records which check denies each trade. Gas for the same EWMA in Solidity is measured at four window lengths, reading prices from calldata and from storage.
 
 ## Expected outcome
 
-On the harness, zkLeash blocks every harmful trial and none of the benign rebalances. The stateless and static baselines miss the salami family. The signed baseline misses that family and any trial where its key is stolen. The contribution a reviewer can attack is this comparison, not a claim of a new trading strategy.
+On the harness, zkLeash blocks every harmful trial and none of the benign ones. The stateless and static baselines miss the salami family, and the static cap also misses volatility-spike buys and blocks de-risking sales. The signed baseline misses the salami family and any trial where its key is stolen. The contribution a reviewer can attack is this comparison, not a claim of a new trading strategy.
 
 ## Team split
 

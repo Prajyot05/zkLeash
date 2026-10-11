@@ -2,6 +2,7 @@
 //! and the benchmark harness. Keeping one generator avoids a second copy of the
 //! price series drifting away from the guest.
 
+use alloc::vec;
 use alloc::vec::Vec;
 
 use crate::evaluate;
@@ -43,9 +44,26 @@ pub fn volatile_buy(addrs: ScenarioAddrs, now: u64) -> Scenario {
     s
 }
 
+/// A $1,000 buy of WETH on the jumpy history. Under the notional and concentration
+/// caps, so only the volatility limit denies it.
+pub fn vol_spike_buy(addrs: ScenarioAddrs, now: u64) -> Scenario {
+    let mut s = build("vol_spike_buy", addrs, 1_000 * 10u128.pow(6), now, true, policy_defaults);
+    s.input.action.token_in_index = 1;
+    s.input.action.token_out_index = 0;
+    s.evaluation = evaluate(&s.input);
+    s
+}
+
+/// Sell 5 WETH into USDC on the jumpy history. V is over budget before and after,
+/// but the trade lowers it, so the risk-reducing exemption allows it.
+pub fn volatile_sell(addrs: ScenarioAddrs, now: u64) -> Scenario {
+    build("volatile_sell", addrs, 5 * 10u128.pow(18), now, true, policy_defaults)
+}
+
 fn policy_defaults(quote: [u8; 20]) -> Policy {
     Policy {
-        max_vol_exposure: 50_000 * ONE,
+        // Dollars of one-observation sigma exposure: 0.1% of the $40k demo book.
+        max_vol_exposure: 40 * ONE,
         max_concentration_bps: 8_000,
         max_drawdown_bps: 3_000,
         max_notional: 30_000 * ONE,

@@ -10,7 +10,7 @@ Subject: Academic credits for a final-year project using SP1
 
 Hello,
 
-We are a B.Tech. final-year group building zkLeash, a research prototype that gates an LLM trading agent's swaps on an SP1 proof of an EWMA risk check. The guest is small (a hash chain plus a single-pass volatility calculation over eight assets). Development and the bulk of the evaluation run in execute mode on laptops. We need Groth16 proofs only for a Base Sepolia demo and a short confirmation subset of the tests.
+We are a B.Tech. final-year group building zkLeash, a research prototype that gates an LLM trading agent's swaps on an SP1 proof of an EWMA risk check. The guest is small (a hash chain plus a single-pass volatility calculation over eight assets). Development and the bulk of the evaluation run the guest natively on laptops; the compiled guest has also been run in the SP1 executor. We need Groth16 proofs only for a Base Sepolia demo and a short confirmation subset of the tests.
 
 Could you grant academic Prover Network credits for that? We would cite SP1 and cap usage to the demo plus the confirmation runs. Happy to share the repository and a one-page abstract.
 

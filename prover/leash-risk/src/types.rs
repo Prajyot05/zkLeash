@@ -117,6 +117,7 @@ pub enum DenyReason {
     WindowLoss,
     TradeRate,
     SameToken,
+    NonIncreasingTime,
 }
 
 impl DenyReason {
@@ -135,6 +136,7 @@ impl DenyReason {
             DenyReason::WindowLoss => "window_loss",
             DenyReason::TradeRate => "trade_rate",
             DenyReason::SameToken => "same_token",
+            DenyReason::NonIncreasingTime => "non_increasing_time",
         }
     }
 }

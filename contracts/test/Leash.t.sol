@@ -107,12 +107,39 @@ contract LeashTest is Test {
         executor.executeGuarded(_action(json), pv, proof, new bytes[](0));
     }
 
+    function test_lying_guest_is_caught_by_vol_limit() public {
+        string memory json = _scenario("vol_spike_buy", 0, 0, 0, 0, 0, 0, 0);
+        assertFalse(vm.parseJsonBool(json, ".allowed"));
+        _applyPolicy(executor, json);
+        _recordHistory(json);
+        _mintFromScenario(json);
+        bytes memory pv = vm.parseJsonBytes(json, ".public_values");
+        // A buggy guest that sets the allow bit on a trade over the volatility budget.
+        pv[4 * 32 + 31] = 0x01;
+        bytes memory proof = verifier.prove(VKEY, pv);
+        vm.prank(address(account));
+        vm.expectRevert(LeashExecutor.VolLimit.selector);
+        executor.executeGuarded(_action(json), pv, proof, new bytes[](0));
+    }
+
+    function test_derisk_over_vol_budget_is_allowed() public {
+        string memory json = _scenario("volatile_sell", 0, 0, 0, 0, 0, 0, 0);
+        assertTrue(vm.parseJsonBool(json, ".allowed"));
+        assertGt(_dec(vm.parseJsonString(json, ".vol_exposure")), _dec(vm.parseJsonString(json, ".policy.max_vol_exposure")));
+        _applyPolicy(executor, json);
+        _recordHistory(json);
+        _mintFromScenario(json);
+        router.setPayout(_fairOut(json, true));
+        _execute(executor, json);
+        assertEq(executor.nonces(address(account)), 1);
+    }
+
     function test_forged_price_history_is_rejected() public {
         string memory json = _scenario("calm", 0, 0, 0, 0, 0, 0, 0);
         _applyPolicy(executor, json);
         _recordHistory(json);
         // Append one extra point the proof does not cover.
-        pyth.setPrice(WETH_ID, 123, 1, -8, NOW);
+        pyth.setPrice(WETH_ID, 123, 1, -8, NOW + 1);
         priceLog.record(new bytes[](0), WETH_ID);
         // Restore the live price to the proven one so the deviation check is not the reason.
         uint256[] memory prices = vm.parseJsonUintArray(json, ".weth_price");
@@ -125,6 +152,20 @@ contract LeashTest is Test {
         vm.prank(address(account));
         vm.expectRevert(LeashExecutor.HeadMismatch.selector);
         executor.executeGuarded(_action(json), pv, proof, new bytes[](0));
+    }
+
+    function test_price_log_refuses_a_repeated_publish_time() public {
+        pyth.setPrice(WETH_ID, 200_000_000_000, 50_000, -8, NOW);
+        priceLog.record(new bytes[](0), WETH_ID);
+        // Re-recording the same Pyth price would add a zero return and pull sigma down.
+        vm.expectRevert(PriceHistoryLog.StalePrice.selector);
+        priceLog.record(new bytes[](0), WETH_ID);
+        pyth.setPrice(WETH_ID, 200_000_000_000, 50_000, -8, NOW - 60);
+        vm.expectRevert(PriceHistoryLog.StalePrice.selector);
+        priceLog.record(new bytes[](0), WETH_ID);
+        pyth.setPrice(WETH_ID, 200_100_000_000, 50_000, -8, NOW + 60);
+        priceLog.record(new bytes[](0), WETH_ID);
+        assertEq(priceLog.lengthOf(WETH_ID), 2);
     }
 
     function test_tampered_public_values_fail_the_honest_verifier() public {
@@ -300,11 +341,83 @@ contract LeashTest is Test {
             for (uint256 i = 0; i < widths[w]; ++i) {
                 prices[i] = int64(int256(1_000_000 + i));
             }
+            vm.cool(address(ewma));
             uint256 gasBefore = gasleft();
             ewma.sigma(prices);
             uint256 used = gasBefore - gasleft();
             emit log_named_uint(string.concat("ewma_gas_", vm.toString(widths[w])), used);
+
+            ewma.load(prices);
+            vm.cool(address(ewma));
+            gasBefore = gasleft();
+            uint256 fromStorage = ewma.sigmaFromStorage();
+            used = gasBefore - gasleft();
+            assertEq(fromStorage, ewma.sigma(prices));
+            emit log_named_uint(string.concat("ewma_storage_gas_", vm.toString(widths[w])), used);
         }
+    }
+
+    function test_gas_trade_path_samples() public {
+        string memory json = _scenario("calm", 0, 0, 0, 0, 0, 0, 0);
+        _applyPolicy(executor, json);
+        _recordHistory(json);
+        _mintFromScenario(json);
+        router.setPayout(_fairOut(json, true));
+        bytes memory pv = vm.parseJsonBytes(json, ".public_values");
+        bytes memory proof = verifier.prove(VKEY, pv);
+        LeashTypes.SwapAction memory action = _action(json);
+
+        _coolAll();
+        uint256 gasBefore = gasleft();
+        verifier.verifyProof(VKEY, pv, proof);
+        emit log_named_uint("stand_in_verifier_gas", gasBefore - gasleft());
+
+        _coolAll();
+        vm.prank(address(account));
+        gasBefore = gasleft();
+        executor.executeGuarded(action, pv, proof, new bytes[](0));
+        emit log_named_uint("execute_guarded_first_trade_gas", gasBefore - gasleft());
+
+        // A second trade writes ledger slots that already exist.
+        RiskLedger.State memory s = ledger.stateOf(address(account));
+        string memory next = _scenario(
+            "calm",
+            1,
+            weth.balanceOf(address(account)),
+            usdc.balanceOf(address(account)),
+            s.windowLoss,
+            s.peakEquity,
+            s.tradesInWindow,
+            s.cumulativePnl
+        );
+        router.setPayout(_fairOut(next, true));
+        bytes memory pv2 = vm.parseJsonBytes(next, ".public_values");
+        bytes memory proof2 = verifier.prove(VKEY, pv2);
+        LeashTypes.SwapAction memory action2 = _action(next);
+        _coolAll();
+        vm.prank(address(account));
+        gasBefore = gasleft();
+        executor.executeGuarded(action2, pv2, proof2, new bytes[](0));
+        emit log_named_uint("execute_guarded_next_trade_gas", gasBefore - gasleft());
+
+        uint256[] memory times = vm.parseJsonUintArray(json, ".weth_time");
+        pyth.setPrice(WETH_ID, 200_500_000_000, 50_000, -8, times[times.length - 1] + 60);
+        _coolAll();
+        gasBefore = gasleft();
+        priceLog.record(new bytes[](0), WETH_ID);
+        emit log_named_uint("price_log_record_gas", gasBefore - gasleft());
+    }
+
+    function _coolAll() internal {
+        vm.cool(address(executor));
+        vm.cool(address(ledger));
+        vm.cool(address(priceLog));
+        vm.cool(address(pyth));
+        vm.cool(address(verifier));
+        vm.cool(address(router));
+        vm.cool(address(account));
+        vm.cool(address(weth));
+        vm.cool(address(usdc));
     }
 
     function _scenario(

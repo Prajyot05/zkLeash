@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = ["leash-risk", "cli"]
-exclude = ["program"]
+exclude = ["program", "exec"]
 
 [workspace.package]
 version = "0.1.0"

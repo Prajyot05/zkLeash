@@ -6,8 +6,9 @@ publish = false
 
 [dependencies]
 leash-risk = { path = "../leash-risk", default-features = false, features = ["serde"] }
-sp1-zkvm = "5"
+sp1-zkvm = "6"
 
-# This crate is excluded from the workspace. Build it with the SP1 toolchain:
-#   cd prover && cargo prove build --elf-name zkleash-guest
+# This crate is excluded from the workspace. Build it with the SP1 v6 toolchain:
+#   cd prover/program && cargo prove build --output-directory elf --elf-name zkleash-guest
+# `prover/exec` runs the ELF in the SP1 executor and compares it with native `evaluate`.
 # Daily development uses `leash-risk check`, which runs the same `evaluate`.

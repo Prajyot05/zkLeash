@@ -1,0 +1,16 @@
+[package]
+name = "zkleash-exec"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+leash-risk = { path = "../leash-risk", features = ["serde"] }
+sp1-sdk = { version = "6", features = ["blocking"] }
+serde_json = "1"
+
+# Excluded from the workspace, like `prover/program`. Build the guest first:
+#   cd prover/program && cargo prove build --output-directory elf --elf-name zkleash-guest
+# (SP1 v6 toolchain: the ELF is riscv64, so sp1-sdk and sp1-zkvm must both be 6.x.)
+# then run the SP1 executor (no proof) over several window lengths:
+#   cd prover/exec && cargo run --release

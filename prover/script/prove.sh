@@ -13,6 +13,7 @@ fi
 
 export SP1_PROVER="${SP1_PROVER:-network}"
 echo "Prover mode: $SP1_PROVER"
-cargo prove build -p zkleash-guest
-echo "ELF ready. Submit with ProverClient::prove(...).groth16() in network mode."
+(cd program && cargo prove build --output-directory elf --elf-name zkleash-guest)
+echo "ELF ready at prover/program/elf/zkleash-guest. Check it with: (cd exec && cargo run --release)"
+echo "Then submit with ProverClient::prove(...).groth16() in network mode."
 echo "Do this only for the demo and the real-proof confirmation subset."

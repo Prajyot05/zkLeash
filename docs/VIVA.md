@@ -15,10 +15,10 @@ The public values include the hash-chain heads. The executor compares them to `P
 Against the honest verifier, the proof bytes are bound to the public values. The test flips one byte and expects `BadProof`. The mock verifier does not do this. We do not use it for security claims. A real deployment uses SP1's Groth16 verifier.
 
 **You did not produce a Groth16 proof. Is the project unfinished?**
-The risk function and the contract checks are finished and tested. Groth16 is a wrapping step we deliberately kept off student laptops. `prover/script/prove.sh` is that step, on the Prover Network, for the demo. Execute mode runs the same Rust function the guest runs.
+The risk function and the contract checks are finished and tested. Groth16 is a wrapping step we deliberately kept off student laptops. `prover/script/prove.sh` is that step, on the Prover Network, for the demo. The compiled guest has been run in the SP1 executor (`make sp1-cycles`), and its public values are byte-identical to the native function the harness uses.
 
-**Is the p-value real?**
-It is McNemar's test on this table. The attacker is scripted and most seeds repeat. The interval says how stable the mean of these trials is, not how often a new model would fail in the wild. Say that before anyone else does.
+**Where is the p-value?**
+There is none. Each of the 225 trials is a different random draw, and the intervals are exact Clopper-Pearson intervals per family and overall. zkLeash's advantage on the salami family is structural, so a significance test adds nothing. The attacker is scripted, so the intervals do not say how often a new model would fail in the wild. Say that before anyone else does.
 
 **What did you not build?**
 Historical CVaR inside the guest, Uniswap v3 simulation, in-guest Pyth signature checks, hidden thresholds, EIP-7702, a second zkVM. They are written up in `docs/FUTURE_SCOPE.md`. CVaR and the salted commitment exist as tested functions and are not on the execution path.

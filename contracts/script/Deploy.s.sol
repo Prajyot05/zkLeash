@@ -61,7 +61,7 @@ contract Deploy is Script {
         executor.setRouter(address(router), true);
         executor.setPolicy(
             LeashTypes.Policy({
-                maxVolExposure: 50_000 ether,
+                maxVolExposure: 40 ether,
                 maxConcentrationBps: 8_000,
                 maxDrawdownBps: 3_000,
                 maxNotional: 30_000 ether,

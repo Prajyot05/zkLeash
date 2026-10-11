@@ -1,12 +1,28 @@
 {
-  "source": "forge test --match-test test_gas_crossover_samples",
-  "note": "Gas is for OnChainEwma.sigma on one asset. It includes the external call overhead. Groth16 verification is not in this measurement; Succinct documents SP1 Groth16 verification at roughly 280k gas.",
-  "ewma_gas": {
-    "8": 17935,
-    "32": 50591,
-    "64": 90822,
-    "128": 171360
+  "source": "python bench/gas_samples.py (forge test --match-test test_gas_ -vv)",
+  "note": "Execution gas of one call, contracts cooled with vm.cool, intrinsic and calldata gas excluded. OnChainEwma.sigma takes unauthenticated calldata; sigmaFromStorage reads one slot per point, the PriceHistoryLog layout. Groth16 verification is not measured; Succinct publishes roughly 280k gas.",
+  "ewma_calldata_gas": {
+    "8": 18873,
+    "32": 53569,
+    "64": 96523,
+    "128": 182510
   },
-  "slope_gas_per_point_after_64": 1258,
-  "single_asset_points_to_exceed_280k": 214
+  "ewma_storage_gas": {
+    "8": 36116,
+    "32": 114694,
+    "64": 219469,
+    "128": 429031
+  },
+  "single_asset_points_to_exceed_280k": {
+    "calldata": 201,
+    "storage": 82
+  },
+  "execute_guarded_gas": {
+    "first_trade": 331518,
+    "next_trade": 260218,
+    "stand_in_verifier": 5332,
+    "next_trade_without_verifier": 254886,
+    "next_trade_with_groth16_estimate": 534886
+  },
+  "price_log_record_gas": 95732
 }

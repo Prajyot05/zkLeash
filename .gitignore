@@ -33,4 +33,5 @@ dashboard/out/
 
 # Proof artifacts
 prover/proofs/
+prover/program/elf/
 *.bin

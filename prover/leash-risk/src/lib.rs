@@ -59,6 +59,10 @@ pub fn evaluate(input: &GuestInput) -> Evaluation {
             reasons.push(DenyReason::ShortHistory);
             continue;
         }
+        // Repeated or backdated points would add zero returns and understate sigma.
+        if asset.points.windows(2).any(|w| w[1].publish_time <= w[0].publish_time) {
+            reasons.push(DenyReason::NonIncreasingTime);
+        }
         match hashchain::chain(&asset.prev_head, &asset.points) {
             Ok((start, end)) => {
                 heads_start[i] = start;
@@ -146,7 +150,12 @@ pub fn evaluate(input: &GuestInput) -> Evaluation {
         0
     });
 
-    if vol_post > input.policy.max_vol_exposure {
+    // Selling into the quote asset without raising V is always allowed past the
+    // risk-budget limits (volatility, concentration, drawdown). Notional, slippage,
+    // and the loss ledger still apply.
+    let reduces_risk = action.token_out_index == input.policy.quote_index && vol_post <= vol_pre;
+
+    if vol_post > input.policy.max_vol_exposure && !reduces_risk {
         reasons.push(DenyReason::VolLimit);
     }
 
@@ -164,8 +173,10 @@ pub fn evaluate(input: &GuestInput) -> Evaluation {
         }
     }
 
-    if let Err(reason) = check_concentration(&input.policy, &exposures_post, count, &input.assets) {
-        reasons.push(reason);
+    match check_concentration(&input.policy, &exposures_post, count, &input.assets) {
+        Err(DenyReason::Concentration) if reduces_risk => {}
+        Err(reason) => reasons.push(reason),
+        Ok(()) => {}
     }
 
     let equity_pre: u128 = exposures_pre[..count].iter().fold(0u128, |a, b| a.saturating_add(*b));
@@ -179,13 +190,8 @@ pub fn evaluate(input: &GuestInput) -> Evaluation {
     } else {
         0
     };
-    if drawdown_bps > input.policy.max_drawdown_bps as u128 {
-        let quote = input.policy.quote_index;
-        let selling_into_quote = action.token_out_index == quote;
-        let reduces_risk = vol_post <= vol_pre;
-        if !selling_into_quote || !reduces_risk {
-            reasons.push(DenyReason::Drawdown);
-        }
+    if drawdown_bps > input.policy.max_drawdown_bps as u128 && !reduces_risk {
+        reasons.push(DenyReason::Drawdown);
     }
 
     if input.ledger.window_loss >= input.policy.max_window_loss && input.policy.max_window_loss > 0 {

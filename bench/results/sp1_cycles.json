@@ -1,0 +1,48 @@
+{
+  "runs": [
+    {
+      "assets": 2,
+      "cycles": 334624,
+      "decision": 1,
+      "identical": true,
+      "points_per_asset": 8
+    },
+    {
+      "assets": 2,
+      "cycles": 468062,
+      "decision": 1,
+      "identical": true,
+      "points_per_asset": 16
+    },
+    {
+      "assets": 2,
+      "cycles": 733856,
+      "decision": 1,
+      "identical": true,
+      "points_per_asset": 32
+    },
+    {
+      "assets": 2,
+      "cycles": 1265222,
+      "decision": 1,
+      "identical": true,
+      "points_per_asset": 64
+    },
+    {
+      "assets": 2,
+      "cycles": 2328052,
+      "decision": 1,
+      "identical": true,
+      "points_per_asset": 128
+    },
+    {
+      "assets": 2,
+      "cycles": 4453756,
+      "decision": 1,
+      "identical": true,
+      "points_per_asset": 256
+    }
+  ],
+  "source": "cd prover/exec && cargo run --release (SP1 executor, no proof; calm scenario, two assets)",
+  "sp1_sdk": "6"
+}

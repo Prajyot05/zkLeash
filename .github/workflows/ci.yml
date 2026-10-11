@@ -27,3 +27,12 @@ jobs:
         run: PYTHONPATH=agent pytest -q agent/tests prover/reference/test_ewma_numpy.py services/test_orchestrator.py
       - name: Harness
         run: python bench/leashbench.py
+      - name: Gas samples
+        run: python bench/gas_samples.py
+      - name: Figures
+        run: |
+          python bench/plot_results.py
+          MPLCONFIGDIR=/tmp/mpl python paper/tools/fig_architecture.py
+      - name: Paper
+        if: hashFiles('zkLeash_IEEE_paper_revised.docx') != ''
+        run: python paper/tools/revise_docx.py

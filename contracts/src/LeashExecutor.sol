@@ -236,7 +236,9 @@ contract LeashExecutor is IERC7579Module {
             if (asset.token != policy.quoteToken && expPost > maxNonQuote) maxNonQuote = expPost;
         }
         if (vol != pv.volExposure) revert VolMismatch();
-        if (vol > policy.maxVolExposure) revert VolLimit();
+        // Selling into the quote asset without raising V passes the risk-budget limits.
+        bool reducesRisk = action.tokenOut == policy.quoteToken && vol <= preVol;
+        if (vol > policy.maxVolExposure && !reducesRisk) revert VolLimit();
 
         uint256 notion = RiskMath.exposure(
             action.amountIn,
@@ -244,7 +246,9 @@ contract LeashExecutor is IERC7579Module {
             assets[inIndex].decimals
         );
         if (notion > policy.maxNotional) revert NotionalLimit();
-        if (totalPost != 0 && maxNonQuote * 10_000 / totalPost > policy.maxConcentrationBps) revert Concentration();
+        if (!reducesRisk && totalPost != 0 && maxNonQuote * 10_000 / totalPost > policy.maxConcentrationBps) {
+            revert Concentration();
+        }
 
         if (enforceLedger) {
             RiskLedger.State memory s = ledger.stateOf(account);
@@ -257,9 +261,7 @@ contract LeashExecutor is IERC7579Module {
             uint256 equity = _equityFromPre(pv, inIndex, outIndex, action.amountIn, fair);
             uint256 peak = s.peakEquity == 0 ? equity : s.peakEquity;
             uint256 dd = peak > equity ? (peak - equity) * 10_000 / peak : 0;
-            if (dd > policy.maxDrawdownBps) {
-                if (action.tokenOut != policy.quoteToken || vol > preVol) revert Drawdown();
-            }
+            if (dd > policy.maxDrawdownBps && !reducesRisk) revert Drawdown();
         }
     }
 

@@ -182,6 +182,58 @@ fn all_in_to_volatile_asset_is_denied() {
     assert_eq!(ev.public_values.decision, DECISION_DENY);
 }
 
+fn jumpy_points() -> Vec<PricePoint> {
+    [100_000_000_000i64, 180_000_000_000, 90_000_000_000, 200_000_000_000, 70_000_000_000, 220_000_000_000, 60_000_000_000, 250_000_000_000]
+        .iter()
+        .enumerate()
+        .map(|(i, p)| point(*p, i as u64 + 1))
+        .collect()
+}
+
+#[test]
+fn selling_into_quote_over_budget_is_allowed_and_buying_is_not() {
+    // V is about $25k on the jumpy history; the budget is $40.
+    let mut sell = sample_input(5 * 10u128.pow(18), jumpy_points());
+    sell.policy.max_vol_exposure = 40 * ONE;
+    sell.ledger.peak_equity = 200_000 * ONE; // deep drawdown as well
+    let ev = evaluate(&sell);
+    assert!(ev.reasons.is_empty(), "de-risking was denied: {:?}", ev.reasons);
+    assert!(ev.public_values.vol_exposure > sell.policy.max_vol_exposure);
+
+    let mut buy = sell.clone();
+    buy.action.token_in_index = 1;
+    buy.action.token_out_index = 0;
+    buy.action.amount_in = 1_000 * 10u128.pow(6);
+    let ev = evaluate(&buy);
+    assert!(ev.reasons.contains(&DenyReason::VolLimit), "got {:?}", ev.reasons);
+    assert!(ev.reasons.contains(&DenyReason::Drawdown), "got {:?}", ev.reasons);
+}
+
+#[test]
+fn risk_reducing_exemption_needs_the_quote_asset_as_output() {
+    let mut input = sample_input(5 * 10u128.pow(18), jumpy_points());
+    input.policy.max_vol_exposure = 40 * ONE;
+    // Make WETH the quote asset, so selling WETH for USDC is no longer into the quote.
+    input.policy.quote_token = input.assets[0].token;
+    input.policy.quote_index = 0;
+    let ev = evaluate(&input);
+    assert!(ev.reasons.contains(&DenyReason::VolLimit), "got {:?}", ev.reasons);
+}
+
+#[test]
+fn repeated_publish_time_is_denied() {
+    // Padding a jumpy history with copies of the last point drags sigma down.
+    let mut padded = jumpy_points();
+    let last = padded.last().unwrap().clone();
+    padded.extend(core::iter::repeat(last).take(60));
+    let padded_sigma = ewma_sigma(&padded.iter().map(|p| p.price).collect::<Vec<_>>()).unwrap();
+    let honest_sigma = ewma_sigma(&jumpy_points().iter().map(|p| p.price).collect::<Vec<_>>()).unwrap();
+    assert!(padded_sigma * 5 < honest_sigma, "padding should cut sigma by more than 5x");
+
+    let ev = evaluate(&sample_input(10u128.pow(17), padded));
+    assert!(ev.reasons.contains(&DenyReason::NonIncreasingTime), "got {:?}", ev.reasons);
+}
+
 #[test]
 fn short_history_fails_closed() {
     let input = sample_input(1, calm_points(200_000_000_000, 3));

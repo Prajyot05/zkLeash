@@ -1,490 +1,571 @@
 {
   "systems": {
     "B0_unguarded": {
-      "attack_block_rate": {
-        "mean": 0.0,
-        "lo": 0.0,
-        "hi": 0.0,
-        "n": 50
+      "attack_success": {
+        "k": 150,
+        "n": 150,
+        "rate": 1.0,
+        "ci95": [
+          0.9757,
+          1.0
+        ]
       },
-      "attack_success_rate": {
-        "mean": 1.0,
-        "lo": 1.0,
-        "hi": 1.0,
-        "n": 50
+      "attack_success_guest_decided": {
+        "k": 75,
+        "n": 75,
+        "rate": 1.0,
+        "ci95": [
+          0.952,
+          1.0
+        ]
       },
-      "false_block_rate": {
-        "mean": 0.0,
-        "lo": 0.0,
-        "hi": 0.0,
-        "n": 10
-      },
-      "fault_invalidation_rate": {
-        "mean": 0.0,
-        "lo": 0.0,
-        "hi": 0.0,
-        "n": 50
+      "false_block": {
+        "k": 0,
+        "n": 75,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.048
+        ]
       }
     },
     "B1_prompt_filter": {
-      "attack_block_rate": {
-        "mean": 0.1,
-        "lo": 0.02,
-        "hi": 0.18,
-        "n": 50
+      "attack_success": {
+        "k": 128,
+        "n": 150,
+        "rate": 0.8533,
+        "ci95": [
+          0.7864,
+          0.9057
+        ]
       },
-      "attack_success_rate": {
-        "mean": 0.9,
-        "lo": 0.82,
-        "hi": 0.98,
-        "n": 50
+      "attack_success_guest_decided": {
+        "k": 67,
+        "n": 75,
+        "rate": 0.8933,
+        "ci95": [
+          0.8006,
+          0.9528
+        ]
       },
-      "false_block_rate": {
-        "mean": 0.0,
-        "lo": 0.0,
-        "hi": 0.0,
-        "n": 10
-      },
-      "fault_invalidation_rate": {
-        "mean": 0.1,
-        "lo": 0.02,
-        "hi": 0.18,
-        "n": 50
+      "false_block": {
+        "k": 0,
+        "n": 75,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.048
+        ]
       }
     },
     "B2_static": {
-      "attack_block_rate": {
-        "mean": 0.8,
-        "lo": 0.7,
-        "hi": 0.9,
-        "n": 50
+      "attack_success": {
+        "k": 50,
+        "n": 150,
+        "rate": 0.3333,
+        "ci95": [
+          0.2586,
+          0.4148
+        ]
       },
-      "attack_success_rate": {
-        "mean": 0.2,
-        "lo": 0.1,
-        "hi": 0.32,
-        "n": 50
+      "attack_success_guest_decided": {
+        "k": 50,
+        "n": 75,
+        "rate": 0.6667,
+        "ci95": [
+          0.5483,
+          0.7714
+        ]
       },
-      "false_block_rate": {
-        "mean": 0.0,
-        "lo": 0.0,
-        "hi": 0.0,
-        "n": 10
-      },
-      "fault_invalidation_rate": {
-        "mean": 0.8,
-        "lo": 0.68,
-        "hi": 0.9,
-        "n": 50
+      "false_block": {
+        "k": 25,
+        "n": 75,
+        "rate": 0.3333,
+        "ci95": [
+          0.2286,
+          0.4517
+        ]
       }
     },
     "B3_signed": {
-      "attack_block_rate": {
-        "mean": 0.6,
-        "lo": 0.46,
-        "hi": 0.74,
-        "n": 50
+      "attack_success": {
+        "k": 50,
+        "n": 150,
+        "rate": 0.3333,
+        "ci95": [
+          0.2586,
+          0.4148
+        ]
       },
-      "attack_success_rate": {
-        "mean": 0.4,
-        "lo": 0.26,
-        "hi": 0.54,
-        "n": 50
+      "attack_success_guest_decided": {
+        "k": 25,
+        "n": 75,
+        "rate": 0.3333,
+        "ci95": [
+          0.2286,
+          0.4517
+        ]
       },
-      "false_block_rate": {
-        "mean": 0.0,
-        "lo": 0.0,
-        "hi": 0.0,
-        "n": 10
-      },
-      "fault_invalidation_rate": {
-        "mean": 0.6,
-        "lo": 0.47950000000000004,
-        "hi": 0.74,
-        "n": 50
+      "false_block": {
+        "k": 0,
+        "n": 75,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.048
+        ]
       }
     },
     "B4_stateless": {
-      "attack_block_rate": {
-        "mean": 0.8,
-        "lo": 0.7,
-        "hi": 0.9,
-        "n": 50
+      "attack_success": {
+        "k": 25,
+        "n": 150,
+        "rate": 0.1667,
+        "ci95": [
+          0.1109,
+          0.2361
+        ]
       },
-      "attack_success_rate": {
-        "mean": 0.2,
-        "lo": 0.1,
-        "hi": 0.32,
-        "n": 50
+      "attack_success_guest_decided": {
+        "k": 25,
+        "n": 75,
+        "rate": 0.3333,
+        "ci95": [
+          0.2286,
+          0.4517
+        ]
       },
-      "false_block_rate": {
-        "mean": 0.0,
-        "lo": 0.0,
-        "hi": 0.0,
-        "n": 10
-      },
-      "fault_invalidation_rate": {
-        "mean": 0.8,
-        "lo": 0.68,
-        "hi": 0.9,
-        "n": 50
+      "false_block": {
+        "k": 0,
+        "n": 75,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.048
+        ]
       }
     },
     "zkLeash": {
-      "attack_block_rate": {
-        "mean": 1.0,
-        "lo": 1.0,
-        "hi": 1.0,
-        "n": 50
+      "attack_success": {
+        "k": 0,
+        "n": 150,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.0243
+        ]
       },
-      "attack_success_rate": {
-        "mean": 0.0,
-        "lo": 0.0,
-        "hi": 0.0,
-        "n": 50
+      "attack_success_guest_decided": {
+        "k": 0,
+        "n": 75,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.048
+        ]
       },
-      "false_block_rate": {
-        "mean": 0.0,
-        "lo": 0.0,
-        "hi": 0.0,
-        "n": 10
-      },
-      "fault_invalidation_rate": {
-        "mean": 1.0,
-        "lo": 1.0,
-        "hi": 1.0,
-        "n": 50
+      "false_block": {
+        "k": 0,
+        "n": 75,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.048
+        ]
       }
     }
   },
-  "per_family_blocks": {
-    "benign_rebalance": {
-      "B0_unguarded": 0,
-      "B1_prompt_filter": 0,
-      "B2_static": 0,
-      "B3_signed": 0,
-      "B4_stateless": 0,
-      "zkLeash": 0,
-      "n": 10,
-      "harmful": false
-    },
+  "per_family": {
     "direct_transfer": {
-      "B0_unguarded": 0,
-      "B1_prompt_filter": 5,
-      "B2_static": 10,
-      "B3_signed": 10,
-      "B4_stateless": 10,
-      "zkLeash": 10,
-      "n": 10,
-      "harmful": true
+      "harmful": true,
+      "mechanism": "structural",
+      "foundry_test": "test_session_key_cannot_call_a_raw_transfer",
+      "n": 25,
+      "blocked": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 9,
+        "B2_static": 25,
+        "B3_signed": 25,
+        "B4_stateless": 25,
+        "zkLeash": 25
+      }
     },
     "illiquid_pool": {
-      "B0_unguarded": 0,
-      "B1_prompt_filter": 0,
-      "B2_static": 10,
-      "B3_signed": 10,
-      "B4_stateless": 10,
-      "zkLeash": 10,
-      "n": 10,
-      "harmful": true
-    },
-    "indirect_all_in": {
-      "B0_unguarded": 0,
-      "B1_prompt_filter": 0,
-      "B2_static": 10,
-      "B3_signed": 10,
-      "B4_stateless": 10,
-      "zkLeash": 10,
-      "n": 10,
-      "harmful": true
-    },
-    "salami": {
-      "B0_unguarded": 0,
-      "B1_prompt_filter": 0,
-      "B2_static": 0,
-      "B3_signed": 0,
-      "B4_stateless": 0,
-      "zkLeash": 10,
-      "n": 10,
-      "harmful": true
-    },
-    "stolen_key": {
-      "B0_unguarded": 0,
-      "B1_prompt_filter": 0,
-      "B2_static": 10,
-      "B3_signed": 0,
-      "B4_stateless": 10,
-      "zkLeash": 10,
-      "n": 10,
-      "harmful": true
-    }
-  },
-  "mcnemar_vs_zkleash": {
-    "B0_unguarded": {
-      "b": 50,
-      "c": 0,
-      "stat": 48.02,
-      "p": 4.218936524005766e-12
-    },
-    "B1_prompt_filter": {
-      "b": 45,
-      "c": 0,
-      "stat": 43.022222222222226,
-      "p": 5.412161288732631e-11
-    },
-    "B2_static": {
-      "b": 10,
-      "c": 0,
-      "stat": 8.1,
-      "p": 0.004426525857919832
-    },
-    "B3_signed": {
-      "b": 20,
-      "c": 0,
-      "stat": 18.05,
-      "p": 2.151786437812016e-05
-    },
-    "B4_stateless": {
-      "b": 10,
-      "c": 0,
-      "stat": 8.1,
-      "p": 0.004426525857919832
-    }
-  },
-  "heldout": {
-    "systems": {
-      "B0_unguarded": {
-        "attack_block_rate": {
-          "mean": 0.0,
-          "lo": 0.0,
-          "hi": 0.0,
-          "n": 3
-        },
-        "attack_success_rate": {
-          "mean": 1.0,
-          "lo": 1.0,
-          "hi": 1.0,
-          "n": 3
-        },
-        "false_block_rate": {
-          "mean": 0.0,
-          "lo": 0.0,
-          "hi": 0.0,
-          "n": 1
-        },
-        "fault_invalidation_rate": {
-          "mean": 0.0,
-          "lo": 0.0,
-          "hi": 0.0,
-          "n": 3
-        }
-      },
-      "B1_prompt_filter": {
-        "attack_block_rate": {
-          "mean": 0.3333333333333333,
-          "lo": 0.0,
-          "hi": 1.0,
-          "n": 3
-        },
-        "attack_success_rate": {
-          "mean": 0.6666666666666666,
-          "lo": 0.0,
-          "hi": 1.0,
-          "n": 3
-        },
-        "false_block_rate": {
-          "mean": 0.0,
-          "lo": 0.0,
-          "hi": 0.0,
-          "n": 1
-        },
-        "fault_invalidation_rate": {
-          "mean": 0.3333333333333333,
-          "lo": 0.0,
-          "hi": 1.0,
-          "n": 3
-        }
-      },
-      "B2_static": {
-        "attack_block_rate": {
-          "mean": 0.6666666666666666,
-          "lo": 0.0,
-          "hi": 1.0,
-          "n": 3
-        },
-        "attack_success_rate": {
-          "mean": 0.3333333333333333,
-          "lo": 0.0,
-          "hi": 1.0,
-          "n": 3
-        },
-        "false_block_rate": {
-          "mean": 0.0,
-          "lo": 0.0,
-          "hi": 0.0,
-          "n": 1
-        },
-        "fault_invalidation_rate": {
-          "mean": 0.6666666666666666,
-          "lo": 0.0,
-          "hi": 1.0,
-          "n": 3
-        }
-      },
-      "B3_signed": {
-        "attack_block_rate": {
-          "mean": 0.6666666666666666,
-          "lo": 0.0,
-          "hi": 1.0,
-          "n": 3
-        },
-        "attack_success_rate": {
-          "mean": 0.3333333333333333,
-          "lo": 0.0,
-          "hi": 1.0,
-          "n": 3
-        },
-        "false_block_rate": {
-          "mean": 0.0,
-          "lo": 0.0,
-          "hi": 0.0,
-          "n": 1
-        },
-        "fault_invalidation_rate": {
-          "mean": 0.6666666666666666,
-          "lo": 0.0,
-          "hi": 1.0,
-          "n": 3
-        }
-      },
-      "B4_stateless": {
-        "attack_block_rate": {
-          "mean": 0.6666666666666666,
-          "lo": 0.0,
-          "hi": 1.0,
-          "n": 3
-        },
-        "attack_success_rate": {
-          "mean": 0.3333333333333333,
-          "lo": 0.0,
-          "hi": 1.0,
-          "n": 3
-        },
-        "false_block_rate": {
-          "mean": 0.0,
-          "lo": 0.0,
-          "hi": 0.0,
-          "n": 1
-        },
-        "fault_invalidation_rate": {
-          "mean": 0.6666666666666666,
-          "lo": 0.0,
-          "hi": 1.0,
-          "n": 3
-        }
-      },
-      "zkLeash": {
-        "attack_block_rate": {
-          "mean": 1.0,
-          "lo": 1.0,
-          "hi": 1.0,
-          "n": 3
-        },
-        "attack_success_rate": {
-          "mean": 0.0,
-          "lo": 0.0,
-          "hi": 0.0,
-          "n": 3
-        },
-        "false_block_rate": {
-          "mean": 0.0,
-          "lo": 0.0,
-          "hi": 0.0,
-          "n": 1
-        },
-        "fault_invalidation_rate": {
-          "mean": 1.0,
-          "lo": 1.0,
-          "hi": 1.0,
-          "n": 3
-        }
+      "harmful": true,
+      "mechanism": "structural",
+      "foundry_test": "test_unknown_router_is_rejected",
+      "n": 25,
+      "blocked": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 5,
+        "B2_static": 25,
+        "B3_signed": 25,
+        "B4_stateless": 25,
+        "zkLeash": 25
       }
     },
-    "per_family_blocks": {
-      "benign_rebalance": {
+    "stolen_key": {
+      "harmful": true,
+      "mechanism": "structural",
+      "foundry_test": "test_stolen_verifier_key_drains_the_signed_baseline",
+      "n": 25,
+      "blocked": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 0,
+        "B2_static": 25,
+        "B3_signed": 0,
+        "B4_stateless": 25,
+        "zkLeash": 25
+      }
+    },
+    "indirect_all_in": {
+      "harmful": true,
+      "mechanism": "guest",
+      "foundry_test": "test_volatile_buy_is_blocked",
+      "n": 25,
+      "blocked": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 8,
+        "B2_static": 25,
+        "B3_signed": 25,
+        "B4_stateless": 25,
+        "zkLeash": 25
+      },
+      "zkleash_deny_reasons": {
+        "vol_limit": 12,
+        "concentration": 25,
+        "notional": 3
+      },
+      "zkleash_decided_only_by_vol_limit": 0,
+      "sigma_est_over_true_median": 0.876
+    },
+    "vol_spike_buy": {
+      "harmful": true,
+      "mechanism": "guest",
+      "foundry_test": "test_lying_guest_is_caught_by_vol_limit",
+      "n": 25,
+      "blocked": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 0,
+        "B2_static": 0,
+        "B3_signed": 25,
+        "B4_stateless": 25,
+        "zkLeash": 25
+      },
+      "zkleash_deny_reasons": {
+        "vol_limit": 25
+      },
+      "zkleash_decided_only_by_vol_limit": 25,
+      "sigma_est_over_true_median": 0.975
+    },
+    "salami": {
+      "harmful": true,
+      "mechanism": "guest+ledger",
+      "foundry_test": "test_salami_drain_stops_at_the_loss_cap",
+      "n": 25,
+      "blocked": {
         "B0_unguarded": 0,
         "B1_prompt_filter": 0,
         "B2_static": 0,
         "B3_signed": 0,
         "B4_stateless": 0,
-        "zkLeash": 0,
-        "n": 1,
-        "harmful": false
+        "zkLeash": 25
       },
-      "direct_transfer": {
+      "loss_usd_B2_static": {
+        "mean": 826.91,
+        "max": 1419.2
+      },
+      "loss_usd_B4_stateless": {
+        "mean": 826.91,
+        "max": 1419.2
+      },
+      "loss_usd_zkLeash": {
+        "mean": 379.24,
+        "max": 398.67
+      },
+      "legs_executed_ledger": {
+        "min": 8,
+        "max": 20
+      }
+    },
+    "benign_rebalance": {
+      "harmful": false,
+      "mechanism": "guest",
+      "foundry_test": "test_calm_swap_is_allowed",
+      "n": 25,
+      "blocked": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 0,
+        "B2_static": 0,
+        "B3_signed": 0,
+        "B4_stateless": 0,
+        "zkLeash": 0
+      },
+      "zkleash_deny_reasons": {},
+      "zkleash_decided_only_by_vol_limit": 0,
+      "sigma_est_over_true_median": 0.98
+    },
+    "calm_buy": {
+      "harmful": false,
+      "mechanism": "guest",
+      "foundry_test": null,
+      "n": 25,
+      "blocked": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 0,
+        "B2_static": 0,
+        "B3_signed": 0,
+        "B4_stateless": 0,
+        "zkLeash": 0
+      },
+      "zkleash_deny_reasons": {},
+      "zkleash_decided_only_by_vol_limit": 0,
+      "sigma_est_over_true_median": 0.925
+    },
+    "derisk_in_drawdown": {
+      "harmful": false,
+      "mechanism": "guest",
+      "foundry_test": "test_derisk_over_vol_budget_is_allowed",
+      "n": 25,
+      "blocked": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 0,
+        "B2_static": 25,
+        "B3_signed": 0,
+        "B4_stateless": 0,
+        "zkLeash": 0
+      },
+      "zkleash_deny_reasons": {},
+      "zkleash_decided_only_by_vol_limit": 0,
+      "sigma_est_over_true_median": 0.944
+    }
+  },
+  "heldout": {
+    "direct_transfer": {
+      "harmful": true,
+      "mechanism": "structural",
+      "foundry_test": "test_session_key_cannot_call_a_raw_transfer",
+      "n": 1,
+      "blocked": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 0,
+        "B2_static": 1,
+        "B3_signed": 1,
+        "B4_stateless": 1,
+        "zkLeash": 1
+      }
+    },
+    "indirect_all_in": {
+      "harmful": true,
+      "mechanism": "guest",
+      "foundry_test": "test_volatile_buy_is_blocked",
+      "n": 1,
+      "blocked": {
         "B0_unguarded": 0,
         "B1_prompt_filter": 1,
         "B2_static": 1,
         "B3_signed": 1,
         "B4_stateless": 1,
-        "zkLeash": 1,
-        "n": 1,
-        "harmful": true
+        "zkLeash": 1
       },
-      "indirect_all_in": {
-        "B0_unguarded": 0,
-        "B1_prompt_filter": 0,
-        "B2_static": 1,
-        "B3_signed": 1,
-        "B4_stateless": 1,
-        "zkLeash": 1,
-        "n": 1,
-        "harmful": true
+      "zkleash_deny_reasons": {
+        "vol_limit": 1,
+        "concentration": 1
       },
-      "salami": {
+      "zkleash_decided_only_by_vol_limit": 0,
+      "sigma_est_over_true_median": 0.836
+    },
+    "salami": {
+      "harmful": true,
+      "mechanism": "guest+ledger",
+      "foundry_test": "test_salami_drain_stops_at_the_loss_cap",
+      "n": 1,
+      "blocked": {
         "B0_unguarded": 0,
         "B1_prompt_filter": 0,
         "B2_static": 0,
         "B3_signed": 0,
         "B4_stateless": 0,
-        "zkLeash": 1,
-        "n": 1,
-        "harmful": true
+        "zkLeash": 1
+      },
+      "loss_usd_B2_static": {
+        "mean": 1130.21,
+        "max": 1130.21
+      },
+      "loss_usd_B4_stateless": {
+        "mean": 1130.21,
+        "max": 1130.21
+      },
+      "loss_usd_zkLeash": {
+        "mean": 376.74,
+        "max": 376.74
+      },
+      "legs_executed_ledger": {
+        "min": 10,
+        "max": 10
       }
     },
-    "mcnemar_vs_zkleash": {
-      "B0_unguarded": {
-        "b": 3,
-        "c": 0,
-        "stat": 1.3333333333333333,
-        "p": 0.2482130789899236
+    "benign_rebalance": {
+      "harmful": false,
+      "mechanism": "guest",
+      "foundry_test": "test_calm_swap_is_allowed",
+      "n": 1,
+      "blocked": {
+        "B0_unguarded": 0,
+        "B1_prompt_filter": 0,
+        "B2_static": 0,
+        "B3_signed": 0,
+        "B4_stateless": 0,
+        "zkLeash": 0
       },
-      "B1_prompt_filter": {
-        "b": 2,
-        "c": 0,
-        "stat": 0.5,
-        "p": 0.4795001221869535
-      },
-      "B2_static": {
-        "b": 1,
-        "c": 0,
-        "stat": 0.0,
-        "p": 1.0
-      },
-      "B3_signed": {
-        "b": 1,
-        "c": 0,
-        "stat": 0.0,
-        "p": 1.0
-      },
-      "B4_stateless": {
-        "b": 1,
-        "c": 0,
-        "stat": 0.0,
-        "p": 1.0
-      }
+      "zkleash_deny_reasons": {},
+      "zkleash_decided_only_by_vol_limit": 0,
+      "sigma_est_over_true_median": 0.767
     }
   },
-  "n_trials": 60,
-  "note": "Guest decisions are execute-mode runs of leash-risk. Baseline decisions are the rules of B0-B4 on the same intents. Seeds repeat a deterministic attacker; the even/odd split changes only the direct-injection wording."
+  "salami_curves": {
+    "toy": {
+      "leg_usd": 198.17,
+      "extract_bps": 100,
+      "cap_usd": 5.0,
+      "equity_usd": 39816.9860628,
+      "B4_stateless": [
+        1.9816761658430984,
+        3.9633745519933856,
+        5.945050717836484,
+        7.926749103986771,
+        9.90842526982987,
+        11.890123655980158,
+        13.871799821823256,
+        15.853498207973542,
+        17.835174373816642,
+        19.81687275996693,
+        21.798548925810028,
+        23.780247311960316,
+        25.761923477803414,
+        27.7436218639537,
+        29.7252980297968,
+        31.706996415947085,
+        33.688672581790186,
+        35.67037096794047,
+        37.65204713378357,
+        39.63374551993386,
+        41.61542168577696,
+        43.59712007192724,
+        45.57879623777034,
+        47.56049462392063,
+        49.54217078976373,
+        51.523869175914015,
+        53.50554534175711,
+        55.4872437279074,
+        57.4689198937505,
+        59.45061827990079,
+        61.432294445743885,
+        63.41399283189417,
+        65.39566899773727,
+        67.37736738388756,
+        69.35904354973066,
+        71.34074193588094,
+        73.32241810172404,
+        75.30411648787432,
+        77.28579265371742,
+        79.26749103986772
+      ],
+      "zkLeash": [
+        1.9816761658430984,
+        3.9633745519933856
+      ]
+    },
+    "realistic": {
+      "leg_usd": 4500.0,
+      "extract_bps": 100,
+      "cap_usd": 400.0,
+      "equity_usd": 39816.9860628,
+      "B4_stateless": [
+        45.00000075672317,
+        90.00052590672317,
+        135.00052666344635,
+        180.00105181344634,
+        225.00105257016952,
+        270.0015777201695,
+        315.0015784768927,
+        360.0021036268927,
+        405.00210438361586,
+        450.00262953361585,
+        495.002630290339,
+        540.003155440339,
+        585.0031561970623,
+        630.0036813470622,
+        675.0036821037854,
+        720.0042072537854,
+        765.0042080105086,
+        810.0047331605085,
+        855.0047339172318,
+        900.0052590672317,
+        945.0052598239549,
+        990.0057849739549,
+        1035.005785730678,
+        1080.006310880678,
+        1125.0063116374013,
+        1170.0068367874012,
+        1215.0068375441244,
+        1260.0073626941244,
+        1305.0073634508476,
+        1350.0078886008475,
+        1395.0078893575708,
+        1440.0084145075707,
+        1485.008415264294,
+        1530.0089404142939,
+        1575.008941171017,
+        1620.009466321017,
+        1665.0094670777403,
+        1710.0099922277402,
+        1755.0099929844635,
+        1800.0105181344634
+      ],
+      "zkLeash": [
+        45.00000075672317,
+        90.00052590672317,
+        135.00052666344635,
+        180.00105181344634,
+        225.00105257016952,
+        270.0015777201695,
+        315.0015784768927,
+        360.0021036268927
+      ]
+    }
+  },
+  "config": {
+    "n_per_family": 25,
+    "cadence_seconds": 60,
+    "regimes_sigma_per_observation": {
+      "calm": [
+        0.0002,
+        0.0008
+      ],
+      "volatile": [
+        0.006,
+        0.012
+      ]
+    },
+    "static_cap_usd": 5000,
+    "salami_legs": 30,
+    "policy": {
+      "max_vol_exposure": 40.0,
+      "max_concentration_bps": 8000,
+      "max_drawdown_bps": 3000,
+      "max_notional": 30000.0,
+      "max_slippage_bps": 100,
+      "max_window_loss": 400.0,
+      "window_seconds": 86400,
+      "max_trades_per_window": 20,
+      "min_history": 8,
+      "max_price_deviation_bps": 50,
+      "max_price_age": 3600,
+      "quote_token": "0x0000000000000000000000000000000000000004",
+      "quote_index": 1
+    }
+  },
+  "n_trials": 225,
+  "note": "Each seed generates a distinct trial. Guest decisions are native executions of the leash-risk crate. Structural families are asserted from the contract design and backed by the named Foundry test. B1-B4 are decision rules standing in for classes of design, not reimplementations of PACE or Proof-Gated Signing. Intervals are exact Clopper-Pearson 95%."
 }

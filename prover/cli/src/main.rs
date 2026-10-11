@@ -19,7 +19,7 @@ fn main() -> ExitCode {
     let command = args.next().unwrap_or_else(|| "check".to_string());
     if command == "--help" || command == "-h" {
         eprintln!(
-            "usage:\n  leash-risk check|execute --input <file> [--format json|hex]\n  leash-risk scenario <calm|volatile_buy> --account 0x --router 0x --weth 0x --usdc 0x [--amount n] [--now ts] [--nonce n] [--chain-id n] [--max-window-loss n]"
+            "usage:\n  leash-risk check|execute --input <file> [--format json|hex]\n  leash-risk scenario <calm|volatile_buy|vol_spike_buy|volatile_sell> --account 0x --router 0x --weth 0x --usdc 0x [--amount n] [--now ts] [--nonce n] [--chain-id n] [--max-window-loss n] [--max-vol-exposure n]\n  `check --input` also accepts a JSON array and prints a JSON array"
         );
         return ExitCode::SUCCESS;
     }
@@ -72,6 +72,22 @@ fn main() -> ExitCode {
             return ExitCode::from(2);
         }
     };
+    // An array of inputs is a batch: one JSON array out, exit 0 unless an input is malformed.
+    if let Some(items) = value.as_array() {
+        let mut outs = Vec::with_capacity(items.len());
+        for (idx, item) in items.iter().enumerate() {
+            let input = match parse_input(item) {
+                Ok(v) => v,
+                Err(err) => {
+                    eprintln!("invalid input at index {idx}: {err}");
+                    return ExitCode::from(2);
+                }
+            };
+            outs.push(evaluation_json(&command, &input, &evaluate(&input)));
+        }
+        println!("{}", Value::Array(outs));
+        return ExitCode::SUCCESS;
+    }
     let input = match parse_input(&value) {
         Ok(v) => v,
         Err(err) => {
@@ -80,25 +96,10 @@ fn main() -> ExitCode {
         }
     };
     let ev = evaluate(&input);
-    let hex_pv = format!("0x{}", hex::encode(&ev.encoded));
     if format == "hex" {
-        println!("{hex_pv}");
+        println!("0x{}", hex::encode(&ev.encoded));
     } else {
-        let reasons: Vec<&str> = ev.reasons.iter().map(|r| r.as_str()).collect();
-        let out = serde_json::json!({
-            "mode": command,
-            "decision": ev.public_values.decision,
-            "allowed": ev.public_values.decision == DECISION_ALLOW,
-            "reasons": reasons,
-            "vol_exposure": ev.public_values.vol_exposure.to_string(),
-            "var99": ev.public_values.var99.to_string(),
-            "equity_pre": ev.equity_pre.to_string(),
-            "step_count": ev.step_count,
-            "public_values": hex_pv,
-            "action_hash": format!("0x{}", hex::encode(ev.public_values.action_hash)),
-            "policy_commitment": format!("0x{}", hex::encode(ev.public_values.policy_commitment)),
-        });
-        println!("{out}");
+        println!("{}", evaluation_json(&command, &input, &ev));
     }
     if ev.public_values.decision == DECISION_ALLOW {
         ExitCode::SUCCESS
@@ -107,11 +108,35 @@ fn main() -> ExitCode {
     }
 }
 
+fn evaluation_json(command: &str, input: &GuestInput, ev: &leash_risk::types::Evaluation) -> Value {
+    let count = usize::from(ev.public_values.asset_count);
+    let reasons: Vec<&str> = ev.reasons.iter().map(|r| r.as_str()).collect();
+    let sigmas: Vec<String> = ev.public_values.sigmas[..count].iter().map(|s| s.to_string()).collect();
+    let balances: Vec<String> = ev.public_values.balances[..count].iter().map(|b| b.to_string()).collect();
+    serde_json::json!({
+        "mode": command,
+        "decision": ev.public_values.decision,
+        "allowed": ev.public_values.decision == DECISION_ALLOW,
+        "reasons": reasons,
+        "vol_exposure": ev.public_values.vol_exposure.to_string(),
+        "vol_pre": ev.vol_pre.to_string(),
+        "var99": ev.public_values.var99.to_string(),
+        "equity_pre": ev.equity_pre.to_string(),
+        "sigmas": sigmas,
+        "post_balances": balances,
+        "history_points": input.assets.iter().map(|a| a.points.len()).collect::<Vec<_>>(),
+        "step_count": ev.step_count,
+        "public_values": format!("0x{}", hex::encode(&ev.encoded)),
+        "action_hash": format!("0x{}", hex::encode(ev.public_values.action_hash)),
+        "policy_commitment": format!("0x{}", hex::encode(ev.public_values.policy_commitment)),
+    })
+}
+
 fn scenario_main(args: Vec<String>) -> ExitCode {
     let name = match args.first().map(String::as_str) {
-        Some("calm") | Some("volatile_buy") => args[0].clone(),
+        Some("calm") | Some("volatile_buy") | Some("vol_spike_buy") | Some("volatile_sell") => args[0].clone(),
         _ => {
-            eprintln!("scenario must be calm or volatile_buy");
+            eprintln!("scenario must be calm, volatile_buy, vol_spike_buy, or volatile_sell");
             return ExitCode::from(2);
         }
     };
@@ -124,6 +149,7 @@ fn scenario_main(args: Vec<String>) -> ExitCode {
     let mut nonce: u64 = 0;
     let mut chain_id: u64 = 31337;
     let mut max_window_loss: Option<u128> = None;
+    let mut max_vol_exposure: Option<u128> = None;
     let mut weth_balance: Option<u128> = None;
     let mut usdc_balance: Option<u128> = None;
     let mut window_loss: Option<u128> = None;
@@ -145,6 +171,9 @@ fn scenario_main(args: Vec<String>) -> ExitCode {
             "--chain-id" => chain_id = val.unwrap_or_default().parse().unwrap_or(chain_id),
             "--max-window-loss" => {
                 max_window_loss = val.and_then(|v| v.parse().ok());
+            }
+            "--max-vol-exposure" => {
+                max_vol_exposure = val.and_then(|v| v.parse().ok());
             }
             "--weth-balance" => weth_balance = val.and_then(|v| v.parse().ok()),
             "--usdc-balance" => usdc_balance = val.and_then(|v| v.parse().ok()),
@@ -190,10 +219,11 @@ fn scenario_main(args: Vec<String>) -> ExitCode {
             }
         },
     };
-    let mut scenario = if name == "calm" {
-        leash_risk::scenarios::calm(addrs, amount, now)
-    } else {
-        leash_risk::scenarios::volatile_buy(addrs, now)
+    let mut scenario = match name.as_str() {
+        "calm" => leash_risk::scenarios::calm(addrs, amount, now),
+        "vol_spike_buy" => leash_risk::scenarios::vol_spike_buy(addrs, now),
+        "volatile_sell" => leash_risk::scenarios::volatile_sell(addrs, now),
+        _ => leash_risk::scenarios::volatile_buy(addrs, now),
     };
     scenario.input.action.nonce = nonce;
     scenario.input.action.chain_id = chain_id;
@@ -201,6 +231,9 @@ fn scenario_main(args: Vec<String>) -> ExitCode {
     scenario.input.action.deadline = now.saturating_add(600);
     if let Some(cap) = max_window_loss {
         scenario.input.policy.max_window_loss = cap;
+    }
+    if let Some(cap) = max_vol_exposure {
+        scenario.input.policy.max_vol_exposure = cap;
     }
     if let Some(bal) = weth_balance {
         scenario.input.assets[0].balance = bal;

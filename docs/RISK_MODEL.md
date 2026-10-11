@@ -47,7 +47,7 @@ These are cheap, so the executor does them in Solidity. A bug in the guest's com
 - Per-asset concentration of non-quote exposure, in basis points of portfolio value. The quote token is exempt, so a risk-off move into USDC is not blocked for being "100% concentrated".
 - Per-trade notional.
 - Rolling drawdown against the ledger peak. Past the limit, the only allowed swap is into the quote token, and it must not increase volatility-scaled exposure.
-- Rolling realized loss and trade count, updated after the swap from the oracle-valued equity change.
+- Rolling execution loss and trade count, updated after the swap from the oracle-valued equity change (value given up against the oracle price, not mark-to-market loss).
 
 ## What was left out on purpose
 
