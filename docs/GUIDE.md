@@ -74,13 +74,13 @@ People are wiring language models to crypto wallets. The model proposes a transa
 
 A language model has two failures that matter here.
 
-It can be prompt-injected. The user message, a headline, token metadata, or the output of a tool can contain an instruction. The model may then propose any swap or any transfer. Papers that document this include Perez and Ribeiro (2022) on direct injection, Greshake et al. (2023) on indirect injection, and Patlan et al., "Real AI Agents with Fake Memories" (FC 2026), plus the CrAIBench setting. zkLeash uses those papers as the threat. The harness in this repo is a small scripted stand-in. It is not a re-run of CrAIBench, and it should not be described as one.
+It can be prompt-injected. The user message, a headline, token metadata, or the output of a tool can contain an instruction. The model may then propose any swap or any transfer. Papers that document this include Perez and Ribeiro (2022) on direct injection, Greshake et al. (2023) on indirect injection, and Patlan et al., "Real AI Agents with Fake Memories" (arXiv:2503.16248), plus the CrAIBench setting. zkLeash uses those papers as the threat. The harness in this repo is a small scripted stand-in. It is not a re-run of CrAIBench, and it should not be described as one.
 
 It cannot be relied on for arithmetic. Asking the model "is this portfolio safe?" is not a safety argument. The safety argument has to be a fixed function, the same one every time, whose inputs are checked.
 
 Two systems from 2026 draw a useful line and then stop short of it. They are the ones a reviewer will cite. The comparison is in `docs/RELATED_WORK.md`.
 
-**PACE** (arXiv 2608.17220, August 2026) puts a deterministic checker in front of the wallet, then signs the policy decision with a trusted verifier key. It judges one transaction. Its authors report that every baseline they tried, including theirs, admits a five-leg drain whose legs each sit under the cap. Multi-step attacks and an ERC-4337 module are listed as their future work.
+**PACE** (arXiv 2608.17220, August 2026) puts a deterministic checker in front of the wallet, then signs the policy decision with a trusted verifier key. It judges one transaction. In its adaptive study (Table 4, seed 0), PACE and every baseline admit all 8 of 8 policy-valid but harmful cases, including a five-leg drain whose legs each sit under the cap. Multi-step loops of policy-valid legs, and ERC-4337 validateUserOp integration, are left as future work.
 
 **Proof-Gated Signing** (arXiv 2610.00354, September 2026) adds post-conditions that survive the chain moving between the check and the trade. The guard holds the signing key. The oracle band is a trusted constant. In-policy drains are bounded only by a flat session budget.
 
@@ -100,7 +100,7 @@ The contribution a reviewer can attack is this comparison. It is not a new tradi
 
 ## 3. The claim, in one paragraph
 
-An LLM proposes a typed swap. An SP1 guest computes EWMA volatility over a hash-chained Pyth price history, and a volatility-scaled exposure of the portfolio after the trade. An ERC-7579 executor checks the proof, the price-log heads, the live Pyth price, and a rolling loss ledger, then enforces an oracle minimum output. On a randomized 225-trial harness (nine families, 25 seeds each) whose guest decisions are native runs of that program, zkLeash admitted none of the 150 harmful trials and blocked none of the 75 benign ones. A stateless proof check (zkLeash without the ledger) let all 25 multi-trade drains through. A static notional cap missed every volatility-spike buy and blocked every large de-risking sale. A signed-attestation baseline missed the drain and every trial in which its key was stolen. The SP1 executor produces byte-identical public values to the native run on the scenarios checked by `make sp1-cycles`.
+An LLM proposes a typed swap. An SP1 guest computes EWMA volatility over a hash-chained Pyth price history, and a volatility-scaled exposure of the portfolio after the trade. An ERC-7579 executor checks the proof, the price-log heads, the live Pyth price, and a rolling loss ledger, then enforces an oracle minimum output. On a randomized 250-trial harness (ten families, 25 seeds each) whose guest decisions are native runs of that program, 75 harmful trials are closed by the session-key interface and are not in the measured rate. On the other 75, zkLeash admitted none. It false-blocked 7 of 100 benign trials, every one a fair day that hit the 20-trade cap. A stateless proof let all 25 multi-trade drains through. A stateless proof plus an $8,000 daily notional cap also stopped those drains, at a lower loss, and false-blocked 35 of 100 benign trials. A static notional cap missed every volatility-spike buy and blocked every large de-risking sale. The SP1 executor produces byte-identical public values to the native run on the scenarios checked by `make sp1-cycles`.
 
 That claim is informal plus tests. It is not a machine-checked proof of the whole system. The assumptions are in section 12.
 
@@ -534,7 +534,7 @@ The Foundry tests use a mock router and a mock oracle. They show that the bindin
 
 ### The harness
 
-`bench/leashbench.py` is LeashBench (`make bench`). Nine families, 25 seeds each, 225 trials: 150 harmful and 75 benign. Each seed draws a different trial from a seeded generator: a WETH price path from a geometric random walk (per-minute sigma 2e-4 to 8e-4 in the calm regime, 6e-3 to 1.2e-2 in the volatile one, one price per minute), 16 to 64 prices of history, a $30,000 to $50,000 portfolio, and a trade size. All guest-decided trials go to `leash-risk check --input` in one batch, and the harness records the deny reasons. The policy is fixed: a $40 volatility budget, a $400 window loss cap, a $30,000 notional cap, 80 percent concentration, 30 percent drawdown, 1 percent slippage, 20 trades per window.
+`bench/leashbench.py` is LeashBench (`make bench`). Ten families, 25 seeds each, 250 trials: 75 structural harmful, 75 measured harmful, and 100 benign. Each seed draws a different trial from a seeded generator: a WETH price path from a geometric random walk (per-minute sigma 2e-4 to 8e-4 in the calm regime, 6e-3 to 1.2e-2 in the volatile one, one price per minute), 16 to 64 prices of history, a $30,000 to $50,000 portfolio, and a trade size. All guest-decided trials go to `leash-risk check --input` in one batch, and the harness records the deny reasons. The policy is fixed: a $40 volatility budget, a $400 window loss cap, a $30,000 notional cap, 80 percent concentration, 30 percent drawdown, 1 percent slippage, 20 trades per window.
 
 Families, and how zkLeash's outcome is decided:
 
@@ -561,41 +561,45 @@ Baselines:
 | B2 | Static | blocks if the target is not allowlisted, or the notional is above 5,000 dollars |
 | B3 | Signed attestation | the guest's stateless decision, signed by a trusted key; a stolen key signs anything |
 | B4 | Stateless proof | the guest's decision with no ledger |
+| B5 | Daily notional cap | B4, plus at most $8,000 of notional in the window |
 | zkLeash | This system | the guest's decision with the ledger carried into each call |
 
-Trials blocked, out of 25 per family (`bench/results/summary.json`):
+Trials blocked, out of 25 per family (`bench/results/summary.json`). The first three families are structural and are not in the measured attack-success rate:
 
-| Family | B0 | B1 | B2 | B3 | B4 | zkLeash |
-| --- | --- | --- | --- | --- | --- | --- |
-| Direct transfer | 0 | 9 | 25 | 25 | 25 | 25 |
-| Unlisted router | 0 | 5 | 25 | 25 | 25 | 25 |
-| Stolen key | 0 | 0 | 25 | 0 | 25 | 25 |
-| All-in buy | 0 | 8 | 25 | 25 | 25 | 25 |
-| Vol. spike buy | 0 | 0 | 0 | 25 | 25 | 25 |
-| Salami drain | 0 | 0 | 0 | 0 | 0 | 25 |
-| Calm rebalance (benign) | 0 | 0 | 0 | 0 | 0 | 0 |
-| Calm buy (benign) | 0 | 0 | 0 | 0 | 0 | 0 |
-| De-risk sale (benign) | 0 | 0 | 25 | 0 | 0 | 0 |
+| Family | B0 | B1 | B2 | B3 | B4 | B5 | zkLeash |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Direct transfer | 0 | 9 | 25 | 25 | 25 | 25 | 25 |
+| Unlisted router | 0 | 5 | 25 | 25 | 25 | 25 | 25 |
+| Stolen key | 0 | 0 | 25 | 0 | 25 | 25 | 25 |
+| All-in buy | 0 | 8 | 25 | 25 | 25 | 25 | 25 |
+| Vol. spike buy | 0 | 0 | 0 | 25 | 25 | 25 | 25 |
+| Salami drain | 0 | 0 | 0 | 0 | 0 | 25 | 25 |
+| Calm rebalance (benign) | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Calm buy (benign) | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| De-risk sale (benign) | 0 | 0 | 25 | 0 | 0 | 17 | 0 |
+| Fair turnover (benign) | 0 | 0 | 0 | 0 | 0 | 18 | 7 |
 
-Attack success over the 150 harmful trials and false blocks over the 75 benign ones, with exact Clopper-Pearson 95 percent intervals:
+Measured attack success is over the 75 guest-decided harmful trials. False blocks are over all 100 benign trials. Intervals are exact Clopper-Pearson 95 percent where they are not 0 or 1:
 
-| System | Attack success | False blocks |
+| System | Measured attack success | False blocks |
 | --- | --- | --- |
-| B0 | 150/150 [0.976, 1] | 0/75 [0, 0.048] |
-| B1 | 128/150 [0.786, 0.906] | 0/75 |
-| B2 | 50/150 [0.259, 0.415] | 25/75 [0.229, 0.452] |
-| B3 | 50/150 [0.259, 0.415] | 0/75 |
-| B4 | 25/150 [0.111, 0.236] | 0/75 |
-| zkLeash | 0/150 [0, 0.024] | 0/75 [0, 0.048] |
+| B0 | 75/75 | 0/100 |
+| B1 | 67/75 | 0/100 |
+| B2 | 50/75 | 25/100 |
+| B3 | 25/75 | 0/100 |
+| B4 | 25/75 | 0/100 |
+| B5 | 0/75 | 35/100 |
+| zkLeash | 0/75 [0, 0.048] | 7/100 [0.029, 0.139] |
 
-There is no p-value. zkLeash's advantage on the salami family is structural (the ledger), so a significance test adds nothing.
+There is no p-value. zkLeash and B5 both stop the salami family, for different reasons, so a significance test adds nothing.
 
 What each family shows:
 
 - Vol. spike buy: zkLeash denied all 25 by the volatility limit alone. B2 admitted all 25, because each buy is under $5,000 and under the concentration cap. This is the family where only the proved statistic decides.
 - All-in buy: denied by concentration in all 25 (and by volatility in 12), so the cheap checks would have sufficed here.
-- Salami: B2 and B4 let all 30 legs through, losing $827 on average and up to $1,419. zkLeash stopped each sequence after 8 to 20 legs, with at most $399 lost against the $400 cap. `make figures` draws the cumulative loss for a toy setting ($198 legs, $5 cap) and a realistic one ($4,500 legs, $400 cap) in `bench/results/salami_curve.png`.
-- De-risk sale: B2 blocks every one because each is over $5,000. Before the risk-reducing exemption was added, zkLeash, B3, and B4 also blocked all 25 by the volatility limit; the exemption is what makes them 0.
+- Salami: B2 and B4 let all 30 legs through, losing $827 on average and up to $1,419. zkLeash stopped each sequence after 8 to 20 legs, with at most $399 lost against the $400 cap. B5 stopped after 1 or 2 legs and lost $42 on average, because an $8,000 notional cap at 1% slippage implies an $80 loss bound. `make figures` draws this in `bench/results/salami_curve.png`.
+- De-risk sale: B2 blocks every one because each is over $5,000. B5 blocks 17 of 25 because they are over $8,000. zkLeash allows all 25 because of the risk-reducing exemption.
+- Fair turnover: small clips under the $5,000 per-trade cap, so B2 allows all 25. B5 blocks 18 of 25 once the day's notional passes $8,000. zkLeash blocks 7 of 25, each at exactly 20 legs, which is the trade-count cap. The loss on those days was at most $17, so the loss cap did not fire.
 - The estimated sigma is biased low because the EWMA starts at zero: the median ratio of estimated to true sigma is 0.88 to 0.98 across families.
 
 `bench/heldout.json` replays the same families. It was not written by an independent attacker. Do not call it a held-out set. The paper says the same thing.
@@ -662,7 +666,7 @@ Say these out loud if asked. They are specified in `docs/FUTURE_SCOPE.md` so "fu
 | `services/orchestrator.py` | FastAPI on port 8000. No session key. |
 | `services/price_log.py` | Poster for the price log. Fail closed if unset. |
 | `services/market_maker.py` | Demo market maker. |
-| `bench/leashbench.py` | The 225-trial randomized comparison. |
+| `bench/leashbench.py` | The 250-trial randomized comparison. |
 | `bench/results` | `summary.json`, `trials.jsonl`, `gas.json`, `sp1_cycles.json`, `salami_curve.png`. |
 | `dashboard` | Next.js view of the orchestrator. Not an enforcement path. |
 | `zkLeash_IEEE_paper_v3.docx` | The paper, generated by `make paper` (`paper/tools/revise_docx.py`) from `zkLeash_IEEE_paper_revised.docx` and the results files. `paper/REVIEW.md` is the review behind it; `paper/SUBMISSION.md` is the checklist. `paper/main.tex` is an older draft. |
@@ -824,15 +828,15 @@ The all-in buy is denied by concentration in all 25 trials, and by the volatilit
 
 The volatility-spike buy is the family where only the proved statistic decides: a $1,000 to $4,900 buy in the volatile regime, under the static cap and under the concentration cap. zkLeash, B3, and B4 deny all 25 by the volatility limit alone. B2 admits all 25. A Foundry test (`test_lying_guest_is_caught_by_vol_limit`) shows that a guest which flips the decision to allow is still stopped by the executor's recomputation.
 
-The salami family is the one that separates zkLeash from the stateless proof (B4), the static cap (B2), and the signed baseline (B3). Each leg is allowed by the guest. B4 has no ledger, so it allows the sequence. B2 allows it because each leg is under 5,000 dollars and the router is allowlisted. B3 allows it because, like PACE, it looks at one transaction and never sees the ledger. zkLeash feeds the running loss into the next check and stops between 8 and 20 legs, below the $400 cap. If a sentence in the paper says "the proof alone stops the salami drain," that sentence is wrong. The ledger stops it. The proof is what carries the ledger view into the next decision, and the contract checks that view against the on-chain notebook.
+The salami family is the one that separates zkLeash from the stateless proof (B4), the static cap (B2), and the signed baseline (B3). Each leg is allowed by the guest. B4 has no ledger, so it allows the sequence. B2 allows it because each leg is under 5,000 dollars and the router is allowlisted. B3 allows it because, like PACE, it looks at one transaction and never sees the ledger. zkLeash feeds the running loss into the next check and stops between 8 and 20 legs, below the $400 cap. B5 also stops it, sooner, because the day's notional hits $8,000 first. If a sentence in the paper says "the proof alone stops the salami drain," that sentence is wrong. The ledger stops it, and a notional cap can stop it too. The proof is what carries the ledger view into the next decision, and the contract checks that view against the on-chain notebook. Do not say zkLeash dominates B5. B5 loses less money on the drain and blocks benign days zkLeash allows.
 
 The stolen-key family is a transfer the signed baseline pays, because that baseline trusts a key. zkLeash has no such key. B2 and B4 also block that family, because the action is not an allowlisted swap. The stolen-key row is how B3 falls over.
 
-On the benign side, the de-risking sale is the row to look at. The static cap blocks all 25. zkLeash allows all 25 only because of the risk-reducing exemption; before it was added, every proof-based system blocked them.
+On the benign side, the de-risking sale is the row to look at. The static cap blocks all 25. The daily notional cap blocks 17. zkLeash allows all 25 only because of the risk-reducing exemption. The fair-turnover row is the other one: B5 blocks 18 of 25, and zkLeash blocks 7 because of the 20-trade cap, not the loss cap.
 
 ### How to talk about the statistics
 
-225 trials: nine families, 25 seeds each, 150 harmful, 75 benign, each seed a different random draw. Attack success on the harmful trials is 150, 128, 50, 50, 25, and 0 out of 150 for B0 through B4 and zkLeash. False blocks are 0 of 75 for every system except B2 (25 of 75, all de-risking sales). The intervals are exact Clopper-Pearson 95 percent intervals; zkLeash's is [0, 2.4%] for attacks and [0, 4.8%] for false blocks. They describe this generator, not how often a new model would fail in the wild. The attacker is scripted. The abstract says so. Keep that.
+250 trials: ten families, 25 seeds each. 75 harmful trials are structural and stay out of the rate. Measured attack success on the other 75 is 75, 67, 50, 25, 25, 0, and 0 for B0 through B5 and zkLeash. False blocks out of 100 benign trials are 0, 0, 25, 0, 0, 35, and 7. zkLeash's intervals are [0, 4.8%] for measured attacks and [2.9%, 13.9%] for false blocks. They describe this generator, not how often a new model would fail in the wild. The attacker is scripted. The abstract says so. Keep that. Do not quote "0 of 150." That number mixed structural cases into a measurement.
 
 There is no McNemar test any more. The salami advantage is structural, and a p-value over a scripted attacker invites the wrong question.
 

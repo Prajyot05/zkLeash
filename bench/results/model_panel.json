@@ -1,0 +1,6 @@
+{
+  "available": false,
+  "host": "http://127.0.0.1:11434",
+  "reason": "<urlopen error [Errno 61] Connection refused>",
+  "proposals": []
+}

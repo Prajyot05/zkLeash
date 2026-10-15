@@ -1,8 +1,7 @@
 """Figures for the paper from `bench/results/summary.json`.
 
 Writes `bench/results/salami_curve.png`: cumulative execution loss against the
-number of salami legs, for a stateless guard (B4) and for zkLeash, in the toy and
-realistic settings that `leashbench.salami_curves` produces.
+number of legs for a stateless guard (B4), a daily notional cap (B5), and zkLeash.
 """
 
 from __future__ import annotations
@@ -18,26 +17,36 @@ import matplotlib.pyplot as plt  # noqa: E402
 RESULTS = Path(__file__).resolve().parent / "results"
 
 
+def _series(curve: list[float], n: int) -> list[float]:
+    padded = [0.0] + list(curve)
+    if len(padded) < n:
+        padded += [padded[-1]] * (n - len(padded))
+    return padded[:n]
+
+
 def salami_curve(summary: dict, out: Path) -> None:
     curves = summary["salami_curves"]
     plt.rcParams.update({"font.family": "serif", "font.size": 8})
     fig, axes = plt.subplots(1, 2, figsize=(3.5, 1.9), constrained_layout=True)
-    for ax, name in zip(axes, ("toy", "realistic")):
+    panels = (
+        ("small_leg", "Small legs, 1% extracted"),
+        ("realistic", "Large legs, 1% extracted"),
+    )
+    for ax, (name, title) in zip(axes, panels):
         c = curves[name]
-        b4 = [0.0] + c["B4_stateless"]
-        zk = [0.0] + c["zkLeash"]
-        # Legs zkLeash refuses add nothing, so its curve stays flat to the last attempted leg.
-        zk += [zk[-1]] * (len(b4) - len(zk))
-        ax.plot(range(len(b4)), b4, color="0.45", linestyle="--", linewidth=1.1, label="Stateless (B4)")
-        ax.plot(range(len(zk)), zk, color="black", linewidth=1.4, label="zkLeash")
+        n = max(len(c["B4_stateless"]), len(c["B5_daily_notional"]), len(c["zkLeash"])) + 1
+        ax.plot(_series(c["B4_stateless"], n), color="0.45", linestyle="--", linewidth=1.1, label="Stateless (B4)")
+        ax.plot(_series(c["B5_daily_notional"], n), color="0.15", linestyle="-.", linewidth=1.1, label="Daily cap (B5)")
+        ax.plot(_series(c["zkLeash"], n), color="black", linewidth=1.4, label="zkLeash")
         ax.axhline(c["cap_usd"], color="black", linewidth=0.6, linestyle=":")
-        ax.set_title(f"\\${c['leg_usd']:,.0f} legs, \\${c['cap_usd']:,.0f} cap", fontsize=7.5)
+        ax.set_title(title, fontsize=7.5)
         ax.set_xlabel("Legs attempted")
-        ax.set_xlim(0, len(b4) - 1)
-        ax.set_ylim(0, max(b4) * 1.05)
+        ax.set_xlim(0, n - 1)
+        top = max(_series(c["B4_stateless"], n) + [c["cap_usd"]])
+        ax.set_ylim(0, top * 1.08 if top else 1)
         ax.grid(True, linewidth=0.3, color="0.85")
     axes[0].set_ylabel("Cumulative loss (USD)")
-    axes[0].legend(loc="upper left", fontsize=6.5, frameon=False)
+    axes[0].legend(loc="upper left", fontsize=6, frameon=False)
     fig.savefig(out, dpi=300)
     plt.close(fig)
 

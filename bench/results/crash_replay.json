@@ -1,0 +1,54 @@
+{
+  "source": "Binance ETHUSDT hourly closes, api.binance.com",
+  "cadence": "1 hour",
+  "window_hours": 48,
+  "budget_rule": "1.5 times the calm window's post-trade vol exposure on a $2,000 ETH buy",
+  "max_vol_exposure_usd": 152.74,
+  "calm_probe_vol_exposure_usd": 101.83,
+  "book": "5 ETH and 15,000 USDC",
+  "drawdown_cap_bps": 9000,
+  "harness_drawdown_cap_bps": 3000,
+  "max_price_age_seconds": 172800,
+  "harness_max_price_age_seconds": 3600,
+  "usdc": "a flat $1",
+  "cases": [
+    {
+      "name": "calm_buy",
+      "start": "2024-07-30 01:00 UTC",
+      "end": "2024-08-01 00:00 UTC",
+      "eth_start": 3300.61,
+      "eth_end": 3235.01,
+      "return": -0.0199,
+      "sigma": 0.005602530632785955,
+      "vol_exposure_usd": 101.82627437741637,
+      "allowed": true,
+      "reasons": []
+    },
+    {
+      "name": "crash_buy",
+      "start": "2024-08-03 13:00 UTC",
+      "end": "2024-08-05 12:00 UTC",
+      "eth_start": 3007.39,
+      "eth_end": 2228.21,
+      "return": -0.2591,
+      "sigma": 0.02307228146470756,
+      "vol_exposure_usd": 303.1940043417953,
+      "allowed": false,
+      "reasons": [
+        "vol_limit"
+      ]
+    },
+    {
+      "name": "crash_sell",
+      "start": "2024-08-03 13:00 UTC",
+      "end": "2024-08-05 12:00 UTC",
+      "eth_start": 3007.39,
+      "eth_end": 2228.21,
+      "return": -0.2591,
+      "sigma": 0.02307228146470756,
+      "vol_exposure_usd": 205.63955312990413,
+      "allowed": true,
+      "reasons": []
+    }
+  ]
+}

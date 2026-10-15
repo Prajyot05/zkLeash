@@ -22,11 +22,11 @@ No off-chain signing key can wave a trade through.
 
 - Guest: fixed-point EWMA and a volatility-scaled exposure limit, in Rust, run natively and in the SP1 executor on a laptop. Groth16 wrapping is reserved for the Succinct Prover Network.
 - Contracts: an ERC-7579 validator and executor on a minimal ERC-4337 account, a Pyth pull inside the trade, an append-only price log, and a loss ledger. Cheap checks stay in Solidity.
-- Evaluation: Foundry tests for the contract rules, including a forged history, a tampered proof, a salami sequence, and a stolen-key baseline. A randomized 225-trial harness (nine families, 25 seeds each) compares five baselines and records which check denies each trade. Gas for the same EWMA in Solidity is measured at four window lengths, reading prices from calldata and from storage.
+- Evaluation: Foundry tests for the contract rules, including a forged history, a tampered proof, a salami sequence, and a stolen-key baseline. A randomized 250-trial harness (ten families, 25 seeds each) compares six baselines, keeps structural attacks out of the measured rate, and records which check denies each trade. One case study replays Binance ETH-USDT hourly closes from the August 2024 unwind. Gas for the same EWMA in Solidity is measured at four window lengths, reading prices from calldata and from storage.
 
 ## Expected outcome
 
-On the harness, zkLeash blocks every harmful trial and none of the benign ones. The stateless and static baselines miss the salami family, and the static cap also misses volatility-spike buys and blocks de-risking sales. The signed baseline misses the salami family and any trial where its key is stolen. The contribution a reviewer can attack is this comparison, not a claim of a new trading strategy.
+On the measured harmful trials, zkLeash blocks every one. It false-blocks 7 of 100 benign trials, all of them because a fair day exceeded the 20-trade cap. A stateless proof misses the salami family. A daily notional cap also stops that family and false-blocks benign turnover the ledger allows. The static cap misses volatility-spike buys and blocks de-risking sales. The signed baseline misses the salami family, and the Foundry stolen-key test shows what happens when its key is stolen. The contribution a reviewer can attack is this comparison, not a claim of a new trading strategy.
 
 ## Team split
 

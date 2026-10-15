@@ -13,7 +13,7 @@ The claim is not "a ZK proof can gate an agent". That sentence is already publis
 
 Attack papers used as the threat, not as systems to extend:
 
-- Patlan et al., "Real AI Agents with Fake Memories" (FC 2026) and CrAIBench. Context and memory injection against Web3 agents. Our harness is smaller and scripted; it is not a re-implementation of CrAIBench, and the paper should not claim that it is.
+- Patlan et al., "Real AI Agents with Fake Memories" (arXiv:2503.16248) and CrAIBench. The arXiv record had no proceedings entry when checked on Oct 15, 2026. Context and memory injection against Web3 agents. Our harness is smaller and scripted; it is not a re-implementation of CrAIBench, and the paper should not claim that it is.
 - Perez and Ribeiro (2022), Greshake et al. (2023): direct and indirect prompt injection.
 
 Other context, not competing systems:

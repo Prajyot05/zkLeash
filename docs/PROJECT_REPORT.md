@@ -15,7 +15,7 @@ The project is a trading agent that cannot move funds unless a proof and an on-c
 - `contracts`: executor, validator, account, price log, ledger, two baselines, an on-chain EWMA used for the gas study, Foundry tests.
 - `agent`: scripted model plus optional Ollama and Gemini clients.
 - `services`: FastAPI orchestrator, price-log poster, demo payout script.
-- `bench`: 225-trial randomized comparison, gas samples, and figures.
+- `bench`: 250-trial randomized comparison, the August 2024 price replay, gas samples, and figures.
 - `dashboard`: a local view of the orchestrator feed.
 - `zkLeash_IEEE_paper_v3.docx`: the paper, built by `make paper`; `paper/REVIEW.md` is the review behind it. `paper/main.tex` is an older draft.
 
@@ -23,7 +23,7 @@ The project is a trading agent that cannot move funds unless a proof and an on-c
 
 Contract tests: 20 passing, plus an invariant of 128,000 handler calls that never stored a window loss above the cap. Rust: 13 unit tests.
 
-Harness, 225 randomized trials in nine families (150 harmful, 75 benign). Attack success: unguarded 150/150; keyword filter 128/150; static cap 50/150; signed attestation 50/150; stateless proof 25/150; zkLeash 0/150 (95% Clopper-Pearson upper bound 2.4%). False blocks: 0/75 for every system except the static cap, which blocked all 25 de-risking sales. The stateless proof misses only the salami drain (losing up to $1,419 against a $400 cap); the static cap also misses every volatility-spike buy, which zkLeash denies by the volatility limit alone. Details are in `bench/results/summary.json` and in the paper.
+Harness, 250 randomized trials in ten families. Seventy-five harmful trials are structural and are not in the measured rate. Measured attack success on the other 75: unguarded 75/75, keyword filter 67/75, static cap 50/75, signed attestation 25/75, stateless proof 25/75, daily notional cap 0/75, zkLeash 0/75 (95% Clopper-Pearson upper bound 4.8%). False blocks out of 100 benign trials: daily notional cap 35, static cap 25, zkLeash 7 (all from the 20-trade cap), and 0 for the others. The stateless proof misses the salami drain (up to $1,419 against a $400 cap). The daily cap stops it at about $42 of loss and also blocks benign turnover. Details are in `bench/results/summary.json` and in the paper. A separate case study replays Binance ETH-USDT hourly closes through the August 5, 2024 unwind.
 
 EWMA gas for one asset, reading prices from storage: 36,116 (8 prices), 114,694 (32), 219,469 (64), 429,031 (128); from unauthenticated calldata: 18,873 to 182,510. A later guarded trade costs 260,218 gas with the stand-in verifier. SP1 executor: 334,624 cycles at 8 prices per asset, 4,453,756 at 256, public values identical to native execution.
 

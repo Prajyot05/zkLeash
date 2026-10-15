@@ -1,4 +1,4 @@
-.PHONY: test rust forge python bench figures gas guest sp1-cycles paper reproduce
+.PHONY: test rust forge python bench figures gas guest sp1-cycles case-studies paper reproduce
 
 export PATH := $(HOME)/.foundry/bin:$(PATH)
 PY := $(CURDIR)/.venv/bin/python
@@ -34,6 +34,11 @@ guest:
 sp1-cycles:
 	cd prover/program && cargo prove build --output-directory elf --elf-name zkleash-guest
 	cd prover/exec && CARGO_TARGET_DIR=$(CURDIR)/prover/exec/target cargo run --release -q > $(CURDIR)/bench/results/sp1_cycles.json
+
+# Network for the Binance replay. The model panel writes available=false if Ollama is down.
+case-studies:
+	$(PY) bench/crash_replay.py
+	$(PY) bench/model_panel.py
 
 paper: figures
 	$(PY) paper/tools/revise_docx.py
